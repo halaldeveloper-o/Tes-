@@ -82,32 +82,76 @@
             width: 100%; 
             transition: width 1s linear; 
         }
+        
+        .history-item { 
+            cursor: pointer; 
+            border-left: 5px solid #28a745; 
+            transition: 0.2s; 
+        }
+        .dark-mode .history-item { 
+            background-color: #374151; 
+            border-color: #10b981; 
+            color: white; 
+        }
+        .history-item:hover { 
+            transform: translateX(5px); 
+        }
 
-        /* Full Screen Chat UI Styles */
-        #chatBoxContainer {
+        .dark-mode input, .dark-mode select {
+            background-color: #374151 !important;
+            color: white !important;
+            border-color: #4b5563 !important;
+        }
+        .dark-mode input::placeholder { 
+            color: #9ca3af; 
+        }
+
+        /* --- New Real-Time Chat Full Screen UI --- */
+        #chatOverlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 999;
             background: white;
-            display: flex;
+            z-index: 10000;
+            display: none;
             flex-direction: column;
         }
-        .dark-mode #chatBoxContainer {
+        .dark-mode #chatOverlay {
             background: var(--dark-bg);
         }
+        .chat-header {
+            padding: 15px;
+            background: var(--primary-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
         .msg-bubble {
-            max-width: 75%;
+            max-width: 80%;
             padding: 10px 15px;
-            border-radius: 18px;
+            border-radius: 20px;
             margin: 5px 0;
             font-size: 14px;
         }
-        .msg-me { background: #28a745; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .msg-them { background: #e5e7eb; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .dark-mode .msg-them { background: #374151; color: white; }
+        .msg-sent {
+            background: var(--primary-green);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+        .msg-received {
+            background: #e5e7eb;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+        .dark-mode .msg-received {
+            background: #374151;
+            color: white;
+        }
 
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -126,7 +170,11 @@
             <button id="themeToggle" onclick="toggleDarkMode()" class="p-2 bg-white dark:bg-gray-800 rounded-full shadow text-yellow-500 active:scale-90 transition">
                 <i class="fas fa-moon"></i>
             </button>
-            <button onclick="openChatList()" class="p-2 bg-white dark:bg-gray-800 rounded-full shadow text-green-600 active:scale-90 transition">
+            <select id="langSwitcher" onchange="changeLanguage(this.value)" class="bg-white border py-1 px-3 rounded-lg shadow-sm text-xs font-bold outline-none">
+                <option value="bn">বাংলা</option>
+                <option value="en">English</option>
+            </select>
+            <button onclick="openChatList()" class="p-2 bg-green-500 rounded-full shadow text-white active:scale-90 transition">
                 <i class="fas fa-comments"></i>
             </button>
         </div>
@@ -143,30 +191,30 @@
         
         <section id="loader" class="hidden-section text-center py-10">
             <div class="inline-block animate-spin rounded-full h-10 w-10 border-t-4 border-green-500"></div>
-            <p class="mt-4 font-bold text-gray-500">Processing...</p>
+            <p class="mt-4 font-bold text-gray-500 animate-pulse">Processing...</p>
         </section>
 
         <section id="step1">
-            <h1 class="text-2xl font-bold text-center text-green-700 dark:text-green-400 mb-6">কুইজ তৈরি করুন 🐼</h1>
+            <h1 data-lang="welcomeTitle" class="text-2xl font-bold text-center text-green-700 dark:text-green-400 mb-6">কুইজ তৈরি করুন 🐼</h1>
             <input type="text" id="userName" class="w-full p-4 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-green-500 text-lg font-semibold" placeholder="আপনার নাম...">
             
             <div class="grid grid-cols-3 gap-4 mb-6">
                 <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50 dark:bg-gray-700 transition" onclick="selectAvatar(this, '🐼')">
                     <div class="text-5xl">🐼</div>
-                    <p class="text-[10px] mt-1 font-bold text-gray-500">Male</p>
+                    <p class="text-[10px] mt-1 font-bold text-gray-500">Male (ছেলে)</p>
                 </div>
                 <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50 dark:bg-gray-700 transition" onclick="selectAvatar(this, '🐻')">
                     <div class="text-5xl">🐻</div>
-                    <p class="text-[10px] mt-1 font-bold text-gray-500">Female</p>
+                    <p class="text-[10px] mt-1 font-bold text-gray-500">Female (মেয়ে)</p>
                 </div>
                 <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50 dark:bg-gray-700 transition" onclick="selectAvatar(this, '🐨')">
                     <div class="text-5xl">🐨</div>
-                    <p class="text-[10px] mt-1 font-bold text-gray-500">Others</p>
+                    <p class="text-[10px] mt-1 font-bold text-gray-500">Others (অন্যান্য)</p>
                 </div>
             </div>
             
-            <button onclick="startQuizCreation()" class="w-full btn-green py-4 rounded-2xl font-bold mb-4 shadow-lg text-lg">চালিয়ে যান →</button>
-            <button onclick="loadUserHistoryUI()" class="w-full text-green-600 dark:text-green-400 font-bold text-sm underline">কুইজ ইতিহাস দেখুন</button>
+            <button onclick="startQuizCreation()" data-lang="btnContinue" class="w-full btn-green py-4 rounded-2xl font-bold mb-4 shadow-lg text-lg">চালিয়ে যান →</button>
+            <button onclick="loadUserHistoryUI()" data-lang="btnHistory" class="w-full text-green-600 dark:text-green-400 font-bold text-sm underline">আমার আগের কুইজ ও ইতিহাস দেখুন</button>
         </section>
 
         <section id="step2" class="hidden-section">
@@ -174,54 +222,132 @@
                 <span id="qCount" class="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 px-3 py-1 rounded-full text-xs font-bold"></span>
                 <span id="timerDisplay" class="text-xs font-bold text-red-500"></span>
             </div>
-            <div id="timerBarParent" class="w-full timer-container mb-6 hidden"><div id="qTimerBar" class="timer-bar"></div></div>
-
+            
+            <div id="timerBarParent" class="w-full timer-container mb-6 hidden">
+                <div id="qTimerBar" class="timer-bar"></div>
+            </div>
+            
             <div id="customQuestionArea" class="hidden mb-4 p-4 bg-blue-50 dark:bg-gray-700 rounded-xl border-2 border-blue-200">
+                <p class="text-[10px] font-bold text-blue-600 mb-2">সঠিক উত্তরের পাশে টিক দিন:</p>
                 <input type="text" id="customQInput" class="w-full p-2 border rounded mb-2 text-sm" placeholder="আপনার প্রশ্ন...">
                 <div class="space-y-2">
-                    <div class="flex items-center gap-2"><input type="radio" name="correctChoice" value="0" checked><input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ১"></div>
-                    <div class="flex items-center gap-2"><input type="radio" name="correctChoice" value="1"><input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ২"></div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="0" checked class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ১">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="1" class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ২">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="2" class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ৩">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="3" class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ৪">
+                    </div>
                 </div>
-                <button onclick="saveCustomQuestion()" class="w-full bg-blue-600 text-white mt-2 py-2 rounded font-bold">সেভ করুন</button>
+                <button onclick="saveCustomQuestion()" data-lang="btnSave" class="w-full bg-blue-600 text-white mt-2 py-2 rounded font-bold hover:bg-blue-700">সেভ করুন</button>
             </div>
 
-            <h2 id="currentQuestion" class="text-xl font-bold text-center mb-6 min-h-[60px] dark:text-white"></h2>
+            <h2 id="currentQuestion" class="text-xl font-bold text-center mb-6 min-h-[60px] text-gray-800 dark:text-gray-100"></h2>
             <div id="optionsGrid" class="grid grid-cols-1 gap-3"></div>
+            
             <div id="creatorControls" class="mt-8 flex flex-col gap-2 text-center">
-                <button onclick="skipQuestion()" class="text-orange-500 font-bold text-sm">স্কিপ করুন ➔</button>
-                <button onclick="enableCustomQuestion()" class="text-blue-500 text-xs underline">নিজের প্রশ্ন যোগ করুন</button>
+                <button onclick="skipQuestion()" data-lang="btnSkip" class="text-orange-500 font-bold text-sm hover:underline">এই প্রশ্নটি স্কিপ করুন ➔</button>
+                <button onclick="enableCustomQuestion()" data-lang="btnAddCustom" class="text-blue-500 text-xs underline">নিজের প্রশ্ন যোগ করুন</button>
             </div>
         </section>
 
         <section id="step3" class="hidden-section text-center">
-            <h2 class="text-xl font-bold mb-4 dark:text-white">লিঙ্ক রেডি! 🎉</h2>
-            <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 dark:bg-gray-700 border-2 border-dashed border-green-400 rounded-xl mb-6 text-center text-sm">
-            <button onclick="copyLink()" class="w-full btn-green py-3 rounded-xl font-bold mb-6">কপি লিঙ্ক</button>
-            <div id="leaderboardEntries" class="space-y-2 max-h-48 overflow-y-auto text-left"></div>
+            <div class="text-5xl mb-4">🎉</div>
+            <h2 data-lang="shareTitle" class="text-xl font-bold mb-4 dark:text-white">কুইজ লিঙ্ক রেডি!</h2>
+            <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 dark:bg-gray-700 border-2 border-dashed border-green-400 rounded-xl mb-6 text-center text-sm font-medium">
+            
+            <div class="grid grid-cols-5 gap-3 mb-8">
+                <button onclick="shareSocial('whatsapp')" class="flex flex-col items-center gap-1"><i class="fab fa-whatsapp text-4xl text-green-500"></i><span class="text-[8px] dark:text-gray-400">WhatsApp</span></button>
+                <button onclick="shareSocial('facebook')" class="flex flex-col items-center gap-1"><i class="fab fa-facebook text-4xl text-blue-700"></i><span class="text-[8px] dark:text-gray-400">Facebook</span></button>
+                <button onclick="shareSocial('messenger')" class="flex flex-col items-center gap-1"><i class="fab fa-facebook-messenger text-4xl text-blue-500"></i><span class="text-[8px] dark:text-gray-400">Messenger</span></button>
+                <button onclick="shareSocial('instagram')" class="flex flex-col items-center gap-1"><i class="fab fa-instagram text-4xl text-pink-600"></i><span class="text-[8px] dark:text-gray-400">Instagram</span></button>
+                <button onclick="shareSocial('imo')" class="flex flex-col items-center gap-1"><i class="fas fa-comment-dots text-4xl text-blue-400"></i><span class="text-[8px] dark:text-gray-400">IMO</span></button>
+            </div>
+
+            <button onclick="copyLink()" data-lang="btnCopy" class="w-full btn-green py-3 rounded-xl font-bold mb-6">কপি লিঙ্ক</button>
+            
+            <div class="text-left border-t dark:border-gray-700 pt-4">
+                <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-3 flex justify-between items-center">
+                    <span data-lang="scoreTitle">বন্ধুদের স্কোর:</span>
+                    <button onclick="loadUserHistoryUI()" data-lang="btnHistorySmall" class="text-green-600 text-xs font-bold underline">ইতিহাস</button>
+                </h3>
+                <div id="leaderboardEntries" class="space-y-2 max-h-48 overflow-y-auto"></div>
+            </div>
+            <button onclick="createNewQuiz()" data-lang="btnCreateNew" class="mt-6 text-green-600 dark:text-green-400 font-bold underline text-sm">নতুন কুইজ তৈরি করুন</button>
+        </section>
+
+        <section id="history" class="hidden-section">
+            <h2 data-lang="historyTitle" class="text-xl font-bold mb-4 text-center dark:text-white">কুইজ ইতিহাস</h2>
+            <div id="historyList" class="space-y-3 mb-6 overflow-y-auto max-h-80 px-1"></div>
+            <button onclick="showSection('step1')" data-lang="btnBack" class="w-full text-green-600 font-bold mt-4">← ফিরে যাও</button>
+        </section>
+
+        <section id="step4" class="hidden-section text-center">
+            <div id="friendAvatarDisp" class="text-7xl mb-4 animate-bounce">🐼</div>
+            <h2 id="friendWelcomeTxt" class="text-xl font-bold mb-6 text-green-700 dark:text-green-400"></h2>
+            <input type="text" id="friendNameInput" class="w-full p-4 border rounded-xl mb-6 outline-none" placeholder="তোমার নাম লেখো...">
+            <button onclick="startFriendQuiz()" data-lang="btnStartQuiz" class="w-full btn-green py-4 rounded-2xl font-bold">কুইজ শুরু করো</button>
         </section>
 
         <section id="step5" class="hidden-section text-center">
             <div class="text-7xl mb-4">🏆</div>
             <div id="finalScore" class="text-7xl font-bold text-green-600 mb-4">0/10</div>
-            <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border-2 border-dashed border-gray-200">
-                <p class="text-xs font-bold text-gray-500 mb-2">বন্ধুর জন্য একটি ছোট মেসেজ (২০ অক্ষর):</p>
-                <input type="text" id="friendComment" maxlength="20" class="w-full p-3 border rounded-xl text-sm mb-2" placeholder="তুই সেরা বন্ধু!">
-                <button onclick="saveFriendComment()" class="text-xs bg-blue-500 text-white px-4 py-2 rounded-full font-bold">মেসেজ পাঠান</button>
+            
+            <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-600">
+                <p data-lang="msgPrompt" class="text-xs font-bold text-gray-500 dark:text-gray-300 mb-2">বন্ধুর জন্য একটি মেসেজ লিখে দাও:</p>
+                <input type="text" id="friendComment" class="w-full p-3 border rounded-xl text-sm mb-2" placeholder="অসাধারণ খেলেছ! / তুই কিছুই জানিস না...">
+                <button onclick="saveFriendComment()" data-lang="btnSendMessage" class="text-xs bg-blue-500 text-white px-4 py-2 rounded-full font-bold">মেসেজ পাঠান</button>
             </div>
-            <button onclick="createNewQuiz()" class="w-full btn-green py-4 rounded-2xl font-bold">নিজের কুইজ তৈরি করুন 🚀</button>
+
+            <button onclick="createNewQuiz()" data-lang="btnResultCreate" class="w-full btn-green py-4 rounded-2xl font-bold shadow-lg">নিজের কুইজ তৈরি করুন 🚀</button>
+        </section>
+
+        <section id="settings" class="hidden-section">
+            <h2 data-lang="settingsTitle" class="text-xl font-bold mb-6 text-center dark:text-white">সেটিংস</h2>
+            <button onclick="resetAllData()" data-lang="btnReset" class="w-full bg-red-500 text-white py-4 rounded-xl mb-8 font-bold hover:bg-red-600">সব তথ্য মুছুন</button>
+            
+            <div class="bg-gray-50 dark:bg-gray-700 p-5 rounded-2xl border dark:border-gray-600 text-sm text-center">
+                <p class="font-bold text-green-700 dark:text-green-400 mb-2 underline">Verified Developers</p>
+                <p class="dark:text-white">
+                    Muhammed Omor 
+                    <a href="https://facebook.com/muhammedomor.fb" target="_blank" class="text-blue-500 ml-2"><i class="fab fa-facebook"></i></a>
+                </p>
+                <p class="mt-2 dark:text-white">
+                    Rafiul Hasan Rafin 
+                    <a href="https://instagram.com/its_rafiul_hasan" target="_blank" class="text-pink-500 ml-2"><i class="fab fa-instagram"></i></a>
+                </p>
+                <hr class="my-4 dark:border-gray-600">
+                <p data-lang="disclaimerText" class="text-red-500 font-medium leading-relaxed">
+                    ⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️
+                </p>
+            </div>
+            <button onclick="showSection('step1')" data-lang="btnBack" class="w-full mt-8 text-green-600 font-bold">← ফিরে যাও</button>
         </section>
 
     </main>
 
-    <div id="chatBoxContainer" class="hidden-section">
-        <div class="flex items-center p-4 bg-green-600 text-white shadow-md">
+    <div id="chatOverlay">
+        <div class="chat-header">
             <button onclick="closeChat()" class="mr-4"><i class="fas fa-arrow-left"></i></button>
-            <span id="chattingWithName" class="font-bold">Chat Box</span>
+            <span id="chatTitle">মেসেজ লিস্ট</span>
         </div>
-        <div id="msgFlow" class="flex-grow overflow-y-auto p-4 flex flex-col"></div>
-        <div class="p-4 bg-gray-100 dark:bg-gray-800 flex gap-2">
-            <input id="mInp" class="flex-grow p-3 border rounded-xl outline-none dark:bg-gray-700" placeholder="হাই বন্ধু...">
-            <button onclick="sendMsg()" class="bg-green-600 text-white w-12 h-12 rounded-xl"><i class="fas fa-paper-plane"></i></button>
+        <div id="chatListArea" class="flex-grow overflow-y-auto">
+            </div>
+        <div id="chatMessageArea" class="hidden flex-grow flex flex-col">
+            <div id="msgFlow" class="flex-grow p-4 overflow-y-auto flex flex-col"></div>
+            <div class="p-3 border-t flex gap-2">
+                <input id="mInput" class="flex-grow p-2 border rounded-full outline-none" placeholder="লিখুন...">
+                <button onclick="sendRealTimeMsg()" class="bg-green-500 text-white w-10 h-10 rounded-full"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
     </div>
 
@@ -230,13 +356,13 @@
         import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyDLQcsbwlu3pF2RdUluFC2nKmObkpR6FOM", 
-            authDomain: "golpo-kotha-97625.firebaseapp.com", 
-            projectId: "golpo-kotha-97625", 
-            storageBucket: "golpo-kotha-97625.firebasestorage.app", 
-            messagingSenderId: "2490998669", 
-            appId: "1:2490998669:web:0ed037a3c9d5ed593827c4" 
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLQcsbwlu3pF2RdUluFC2nKmObkpR6FOM",
+            authDomain: "golpo-kotha-97625.firebaseapp.com",
+            projectId: "golpo-kotha-97625",
+            storageBucket: "golpo-kotha-97625.firebasestorage.app",
+            messagingSenderId: "2490998669",
+            appId: "1:2490998669:web:0ed037a3c9d5ed593827c4"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -247,73 +373,117 @@
         window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy };
         window.fbAuth = { auth, signInWithPopup, provider, signOut };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('displayUserName').innerText = user.displayName.split(' ')[0];
                 document.getElementById('userImg').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
                 document.getElementById('authBtn').innerText = "Logout";
+            } else {
+                document.getElementById('displayUserName').innerText = "Guest";
+                document.getElementById('userImg').innerHTML = `<i class="fas fa-user text-gray-400 text-[10px]"></i>`;
+                document.getElementById('authBtn').innerText = "Login";
             }
         });
-        
-        // --- Init Logic ---
-        const urlId = new URLSearchParams(window.location.search).get('id');
-        if (urlId) loadFriendMode(urlId);
+
+        init();
     </script>
 
     <script>
-        // --- Questions & Data ---
+        const langDict = {
+            bn: { welcomeTitle: "কুইজ তৈরি করুন 🐼", btnContinue: "চালিয়ে যান →", btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", btnAddCustom: "নিজের প্রশ্ন যোগ করুন", btnSave: "সেভ করুন", shareTitle: "কুইজ লিঙ্ক রেডি!", btnCopy: "কপি লিঙ্ক", scoreTitle: "বন্ধুদের স্কোর:", btnHistorySmall: "ইতিহাস", btnCreateNew: "নতুন কুইজ তৈরি করুন", historyTitle: "কুইজ ইতিহাস", btnBack: "← ফিরে যাও", btnStartQuiz: "কুইজ শুরু করো", btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", settingsTitle: "সেটিংস", btnReset: "সব তথ্য মুছুন", namePlaceholder: "আপনার নাম...", friendPlaceholder: "তোমার নাম লেখো...", msgPrompt: "বন্ধুর জন্য একটি মেসেজ লিখে দাও:", btnSendMessage: "মেসেজ পাঠান", disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ❤️" },
+            en: { welcomeTitle: "Create Your Quiz 🐼", btnContinue: "Continue →", btnHistory: "View Quiz History", btnSkip: "Skip question ➔", btnAddCustom: "Add Custom Question", btnSave: "Save", shareTitle: "Quiz Link is Ready!", btnCopy: "Copy Link", scoreTitle: "Friend Scores:", btnHistorySmall: "History", btnCreateNew: "Create New Quiz", historyTitle: "Quiz History", btnBack: "← Back", btnStartQuiz: "Start Quiz", btnResultCreate: "Create Your Own 🚀", settingsTitle: "Settings", btnReset: "Reset All Data", namePlaceholder: "Your name...", friendPlaceholder: "Your name...", msgPrompt: "Leave a message for your friend:", btnSendMessage: "Send Message", disclaimerText: "⚠️ Special Disclaimer: This website is for entertainment purposes only. ❤️" }
+        };
+
         const rawPool = [
-            { bn: "{N}-এর প্রিয় রং কোনটি?", o: ["লাল", "নীল", "কালো", "সাদা"] },
-            { bn: "{N} অবসর সময়ে কী করে?", o: ["গেম খেলা", "বই পড়া", "ঘুমানো", "মুভি"] },
-            { bn: "{N}-এর পছন্দের খাবার?", o: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"] },
-            { bn: "{N} পাহাড় নাকি সমুদ্র?", o: ["পাহাড়", "সমুদ্র", "দুটোই", "কোনোটাই না"] }
+            { bn: "{N}-এর পছন্দের রং কি?", en: "Favorite Color of {N}?", o: { bn: ["সাদা", "কালো", "নীল", "লাল"], en: ["White", "Black", "Blue", "Red"] } },
+            { bn: "{N}-এর সবচেয়ে প্রিয় খাবার?", en: "Favorite Food of {N}?", o: { bn: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"], en: ["Kacchi", "Burger", "Khichuri", "Fuchka"] } },
+            { bn: "{N} ভবিষ্যতে কী হতে চান?", en: "What does {N} want to be?", o: { bn: ["বড়লোক", "সফল", "শান্তিতে থাকা", "জানি না"], en: ["Rich", "Successful", "Peace", "Unknown"] } },
+            { bn: "{N} সবচেয়ে বেশি কোন অ্যাপ চালায়?", en: "App {N} uses most?", o: { bn: ["FB", "YouTube", "TikTok", "WhatsApp"], en: ["FB", "YouTube", "TikTok", "WhatsApp"] } },
+            { bn: "{N}-এর রাগ কেমন?", en: "How is {N}'s anger?", o: { bn: ["প্রচণ্ড", "অল্প", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
+            { bn: "{N} কার সাথে বেশি কথা বলে?", en: "Who does {N} talk to most?", o: { bn: ["মা", "বন্ধু", "অন্য কেউ", "কারো সাথে না"], en: ["Mom", "Friend", "Other", "Nobody"] } },
+            { bn: "{N}-এর প্রিয় ঋতু কোনটি?", en: "Favorite season of {N}?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
+            { bn: "{N} সবচেয়ে বেশি কী ভয় পায়?", en: "What does {N} fear most?", o: { bn: ["সাপ", "অন্ধকার", "পরীক্ষা", "মানুষ"], en: ["Snake", "Dark", "Exams", "People"] } },
+            { bn: "{N}-এর কাছে টাকা নাকি ভালোবাসা বড়?", en: "Money or Love for {N}?", o: { bn: ["টাকা", "ভালোবাসা", "দুইটাই", "কোনোটাই না"], en: ["Money", "Love", "Both", "None"] } },
+            { bn: "{N} রাত জাগে কেন?", en: "Why does {N} stay up late?", o: { bn: ["ফোন টিপি", "চিন্তা করি", "কাজ করি", "ঘুম আসে না"], en: ["Social Media", "Thinking", "Working", "Insomnia"] } }
         ];
 
-        let profile = { name: '', avatar: '🐼', answers: [], quizId: '' };
-        let quizFromDB = null;
+        let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '🐼', answers: [], quizId: '' };
+        let currentLang = localStorage.getItem('lang') || 'bn';
+        let isDarkMode = localStorage.getItem('theme') === 'dark';
         let activePool = [];
-        let curChatId = null;
-        let chatUnsub = null;
+        let quizFromDB = null;
+        let friendScore = 0;
+        let friendQIdx = 0;
+        let timer;
+        let unsubscribe = null;
+        let currentChatId = null;
+        let msgUnsub = null;
 
-        function showSection(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
-            document.getElementById(id).classList.remove('hidden-section');
+        function init() {
+            document.getElementById('langSwitcher').value = currentLang;
+            if (isDarkMode) document.body.classList.add('dark-mode');
+            updateThemeUI();
+            applyLanguage();
+            const qId = new URLSearchParams(window.location.search).get('id');
+            if (qId) loadFriendMode(qId);
+            else if (userProfile.quizId) showSharePage(userProfile.quizId);
+        }
+
+        function applyLanguage() {
+            const texts = langDict[currentLang];
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if(texts[key]) el.innerText = texts[key];
+            });
+            document.getElementById('userName').placeholder = texts.namePlaceholder;
+            document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder;
+        }
+
+        function changeLanguage(v) {
+            currentLang = v;
+            localStorage.setItem('lang', v);
+            applyLanguage();
         }
 
         function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateThemeUI();
         }
 
-        function selectAvatar(el, icon) {
-            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected'));
-            el.classList.add('avatar-selected');
-            profile.avatar = icon;
+        function updateThemeUI() {
+            const btn = document.getElementById('themeToggle');
+            btn.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
         }
 
-        // --- Creator Side ---
         function startQuizCreation() {
-            const n = document.getElementById('userName').value.trim();
-            if(!n) return alert("নাম দিন!");
-            profile.name = n;
-            activePool = rawPool.map(q => ({ bn: q.bn.replace(/{N}/g, n), o: q.o })).sort(() => 0.5 - Math.random());
+            const nameInput = document.getElementById('userName').value.trim();
+            if(!nameInput) return alert("নাম দিন!");
+            userProfile.name = nameInput;
+            activePool = rawPool.map(q => ({
+                bn: q.bn.replace(/{N}/g, userProfile.name),
+                en: q.en.replace(/{N}/g, userProfile.name),
+                o: q.o
+            })).sort(() => Math.random() - 0.5);
             showSection('step2');
             renderCreatorQuestion();
         }
 
         function renderCreatorQuestion() {
-            if (profile.answers.length >= 10) return saveToCloud();
+            if (userProfile.answers.length >= 10) return saveToCloud();
             document.getElementById('customQuestionArea').classList.add('hidden');
             const q = activePool[0];
-            document.getElementById('qCount').innerText = `${profile.answers.length + 1}/10`;
-            document.getElementById('currentQuestion').innerText = q.bn;
+            document.getElementById('qCount').innerText = `${userProfile.answers.length + 1}/10`;
+            document.getElementById('currentQuestion').innerText = q[currentLang];
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
-            q.o.forEach((opt, i) => {
+            q.o[currentLang].forEach((opt, i) => {
                 const b = document.createElement('button');
-                b.className = "w-full p-4 border-2 rounded-xl text-left dark:text-white";
+                b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition dark:border-gray-600 dark:text-gray-200";
                 b.innerText = opt;
                 b.onclick = () => {
-                    profile.answers.push({ q: q.bn, a: i, o: q.o });
+                    userProfile.answers.push({ q: {bn: q.bn, en: q.en}, a: i, o: q.o });
                     activePool.shift();
                     renderCreatorQuestion();
                 };
@@ -326,82 +496,228 @@
         function saveCustomQuestion() {
             const qT = document.getElementById('customQInput').value;
             const oS = Array.from(document.querySelectorAll('.custom-opt')).map(i => i.value);
-            const selIdx = parseInt(document.querySelector('input[name="correctChoice"]:checked').value);
-            if(!qT || oS.some(o => !o)) return alert("ঘর পূরণ করুন!");
-            profile.answers.push({ q: qT, a: selIdx, o: oS });
+            const selectedIdx = parseInt(document.querySelector('input[name="correctChoice"]:checked').value);
+            if(!qT || oS.some(o => !o)) return alert("সব ঘর পূরণ করুন!");
+            userProfile.answers.push({ q: {bn: qT, en: qT}, a: selectedIdx, o: { bn: oS, en: oS } });
             renderCreatorQuestion();
         }
+
+        function skipQuestion() { if(activePool.length > 1) { activePool.shift(); renderCreatorQuestion(); } }
 
         async function saveToCloud() {
             showSection('loader');
             const id = "q_" + Date.now();
-            const uid = window.fbAuth.auth.currentUser?.uid || "guest";
+            const uid = window.fbAuth.auth.currentUser ? window.fbAuth.auth.currentUser.uid : "guest";
+            userProfile.quizId = id;
+            localStorage.setItem('myQuizProfile', JSON.stringify(userProfile));
             await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", id), {
-                creator: profile.name, creatorId: uid, avatar: profile.avatar, answers: profile.answers, results: [], createdAt: Date.now()
+                creator: userProfile.name, creatorId: uid, avatar: userProfile.avatar, answers: userProfile.answers, results: [], createdAt: Date.now()
             });
-            profile.quizId = id;
             showSharePage(id);
         }
 
         function showSharePage(id) {
             showSection('step3');
             document.getElementById('shareLink').value = `${window.location.origin}${window.location.pathname}?id=${id}`;
+            if(unsubscribe) unsubscribe();
+            unsubscribe = window.fs.onSnapshot(window.fs.doc(window.fs.db, "quizzes", id), (snap) => {
+                const data = snap.data();
+                if(data && data.results) {
+                    document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
+                        <div class="flex flex-col bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border-b mb-2">
+                            <div class="flex justify-between items-center w-full">
+                                <span class="text-sm font-bold dark:text-gray-200">${r.name}</span>
+                                <span class="font-bold text-green-600">${r.score}/10</span>
+                            </div>
+                            ${r.comment ? `<p class="mt-1 text-xs italic text-blue-500">"${r.comment}"</p>` : ''}
+                        </div>
+                    `).join('');
+                }
+            });
         }
 
-        // --- Real-time Chat Box ---
+        async function loadUserHistoryUI() {
+            const user = window.fbAuth.auth.currentUser;
+            if(!user) return alert("লগইন করুন!");
+            showSection('history');
+            const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
+            const snap = await window.fs.getDocs(q);
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                const div = document.createElement('div');
+                div.className = "history-item p-3 bg-white border rounded-lg flex justify-between items-center shadow-sm";
+                div.innerHTML = `<div onclick="restoreQuiz('${docSnap.id}')" class="flex-grow">
+                        <p class="font-bold text-sm text-gray-700">${d.creator}-এর কুইজ</p>
+                        <p class="text-[10px] text-gray-400">Attempts: ${d.results ? d.results.length : 0}</p>
+                    </div>
+                    <button onclick="deleteQuiz(event, '${docSnap.id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>`;
+                list.appendChild(div);
+            });
+        }
+
+        window.restoreQuiz = (id) => { userProfile.quizId = id; showSharePage(id); };
+        window.deleteQuiz = async (e, id) => {
+            e.stopPropagation();
+            if(!confirm("মুছে ফেলবেন?")) return;
+            await window.fs.deleteDoc(window.fs.doc(window.fs.db, "quizzes", id));
+            loadUserHistoryUI();
+        };
+
+        async function loadFriendMode(id) {
+            showSection('loader');
+            const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
+            if (snap.exists()) {
+                quizFromDB = snap.data();
+                showSection('step4');
+                document.getElementById('friendAvatarDisp').innerText = quizFromDB.avatar;
+                document.getElementById('friendWelcomeTxt').innerText = `${quizFromDB.creator} সম্পর্কে কতটুকু জানো?`;
+            }
+        }
+
+        function startFriendQuiz() {
+            if(!document.getElementById('friendNameInput').value) return alert("নাম লেখো!");
+            showSection('step2');
+            document.getElementById('creatorControls').classList.add('hidden');
+            document.getElementById('timerBarParent').classList.remove('hidden');
+            renderFriendQuestion();
+        }
+
+        function renderFriendQuestion() {
+            clearInterval(timer);
+            let timeLeft = 15;
+            document.getElementById('qTimerBar').style.width = '100%';
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerDisplay').innerText = timeLeft + "s";
+                document.getElementById('qTimerBar').style.width = (timeLeft / 15 * 100) + '%';
+                if(timeLeft <= 0) handleAnswer(-1, null);
+            }, 1000);
+
+            const qD = quizFromDB.answers[friendQIdx];
+            document.getElementById('qCount').innerText = `প্রশ্ন: ${friendQIdx + 1}/10`;
+            document.getElementById('currentQuestion').innerText = qD.q[currentLang];
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            qD.o[currentLang].forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = "opt-btn w-full p-4 border-2 rounded-xl text-left font-medium transition dark:border-gray-600 dark:text-gray-200";
+                b.innerText = opt;
+                b.onclick = () => handleAnswer(i, b);
+                grid.appendChild(b);
+            });
+        }
+
+        function handleAnswer(i, btn) {
+            clearInterval(timer);
+            const correct = quizFromDB.answers[friendQIdx].a;
+            if(i === correct) { btn.classList.add('correct-ans'); friendScore++; }
+            else { if(btn) btn.classList.add('wrong-ans'); document.querySelectorAll('.opt-btn')[correct].classList.add('correct-ans'); }
+            setTimeout(() => { friendQIdx++; if(friendQIdx < 10) renderFriendQuestion(); else finishFriendQuiz(); }, 1000);
+        }
+
+        async function finishFriendQuiz() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const name = document.getElementById('friendNameInput').value;
+            await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), {
+                results: window.fs.arrayUnion({ name, score: friendScore, comment: "" })
+            });
+            showSection('step5');
+            document.getElementById('finalScore').innerText = `${friendScore}/10`;
+            if(friendScore >= 7) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }
+
+        async function saveFriendComment() {
+            const comment = document.getElementById('friendComment').value.trim();
+            if(!comment) return alert("কিছু লেখো!");
+            const id = new URLSearchParams(window.location.search).get('id');
+            const name = document.getElementById('friendNameInput').value;
+            const docRef = window.fs.doc(window.fs.db, "quizzes", id);
+            const snap = await window.fs.getDoc(docRef);
+            const results = snap.data().results;
+            results.forEach(r => { if(r.name === name) r.comment = comment; });
+            await window.fs.updateDoc(docRef, { results });
+            alert("মেসেজ পাঠানো হয়েছে!");
+        }
+
+        // --- Real-Time Chat Logic ---
         async function openChatList() {
-            if(!window.fbAuth.auth.currentUser) return alert("লগইন প্রয়োজন!");
-            // Full Screen Chat logic
-            document.getElementById('chatBoxContainer').classList.remove('hidden-section');
-            const uid = window.fbAuth.auth.currentUser.uid;
-            // এই পার্টে চ্যাট বন্ধুদের লিস্ট দেখানোর কোড বসবে
-            startChat("global_room", "Friends Group");
+            const user = window.fbAuth.auth.currentUser;
+            if(!user) return alert("চ্যাট করতে লগইন প্রয়োজন!");
+            document.getElementById('chatOverlay').style.display = 'flex';
+            const contacts = document.getElementById('chatListArea');
+            contacts.innerHTML = '<p class="p-4 text-center">লোড হচ্ছে...</p>';
+            
+            const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
+            const snap = await window.fs.getDocs(q);
+            contacts.innerHTML = '';
+            
+            snap.forEach(d => {
+                const data = d.data();
+                data.results.forEach(res => {
+                    const div = document.createElement('div');
+                    div.className = "p-4 border-b dark:text-white cursor-pointer";
+                    div.innerHTML = `<b>${res.name}</b> (Score: ${res.score})`;
+                    div.onclick = () => startIndividualChat(user.uid, res.name, d.id);
+                    contacts.appendChild(div);
+                });
+            });
         }
 
-        function closeChat() { document.getElementById('chatBoxContainer').classList.add('hidden-section'); }
+        function startIndividualChat(myId, friendName, quizId) {
+            currentChatId = `${quizId}_${friendName}`;
+            document.getElementById('chatTitle').innerText = friendName;
+            document.getElementById('chatListArea').classList.add('hidden');
+            document.getElementById('chatMessageArea').classList.remove('hidden');
 
-        function startChat(chatId, chatName) {
-            curChatId = chatId;
-            document.getElementById('chattingWithName').innerText = chatName;
-            const q = window.fs.query(window.fs.collection(window.fs.db, "chats", chatId, "messages"), window.fs.orderBy("ts", "asc"));
-            if(chatUnsub) chatUnsub();
-            chatUnsub = window.fs.onSnapshot(q, (s) => {
+            const q = window.fs.query(window.fs.collection(window.fs.db, "chats", currentChatId, "messages"), window.fs.orderBy("time", "asc"));
+            if(msgUnsub) msgUnsub();
+            msgUnsub = window.fs.onSnapshot(q, (snap) => {
                 const flow = document.getElementById('msgFlow');
                 flow.innerHTML = '';
-                s.forEach(d => {
-                    const data = d.data();
+                snap.forEach(doc => {
+                    const m = doc.data();
                     const b = document.createElement('div');
-                    b.className = `msg-bubble ${data.sid === window.fbAuth.auth.currentUser.uid ? 'msg-me' : 'msg-them'}`;
-                    b.innerText = data.txt;
+                    b.className = `msg-bubble ${m.sender === myId ? 'msg-sent' : 'msg-received'}`;
+                    b.innerText = m.text;
                     flow.appendChild(b);
                 });
                 flow.scrollTop = flow.scrollHeight;
             });
         }
 
-        async function sendMsg() {
-            const i = document.getElementById('mInp');
-            if(!i.value.trim() || !curChatId) return;
-            await window.fs.addDoc(window.fs.collection(window.fs.db, "chats", curChatId, "messages"), {
-                txt: i.value, sid: window.fbAuth.auth.currentUser.uid, ts: Date.now()
+        async function sendRealTimeMsg() {
+            const val = document.getElementById('mInput').value.trim();
+            if(!val || !currentChatId) return;
+            await window.fs.addDoc(window.fs.collection(window.fs.db, "chats", currentChatId, "messages"), {
+                text: val, sender: window.fbAuth.auth.currentUser.uid, time: Date.now()
             });
-            i.value = '';
+            document.getElementById('mInput').value = '';
         }
 
-        async function saveFriendComment() {
-            const comment = document.getElementById('friendComment').value.trim();
-            if(!comment) return alert("মেসেজ লিখুন!");
-            alert("মেসেজ পাঠানো হয়েছে: " + comment);
-            // ডাটাবেসে আপডেট করার লজিক এখানে
-        }
-        
-        function copyLink() {
-            navigator.clipboard.writeText(document.getElementById('shareLink').value);
-            alert("লিঙ্ক কপি হয়েছে!");
+        function closeChat() {
+            document.getElementById('chatOverlay').style.display = 'none';
+            document.getElementById('chatListArea').classList.remove('hidden');
+            document.getElementById('chatMessageArea').classList.add('hidden');
+            if(msgUnsub) msgUnsub();
         }
 
-        function createNewQuiz() { location.href = location.pathname; }
-        function handleAuth() { window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload()); }
+        function handleAuth() {
+            if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload());
+            else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload());
+        }
+        function createNewQuiz() { localStorage.removeItem('myQuizProfile'); location.href = location.pathname; }
+        function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
+        function selectAvatar(el, icon) { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); el.classList.add('avatar-selected'); userProfile.avatar = icon; }
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("লিঙ্ক কপি হয়েছে!"); }
+        function resetAllData() { if(confirm("সব ডাটা মুছে যাবে?")) { localStorage.clear(); location.reload(); } }
+        function shareSocial(p) {
+            const url = encodeURIComponent(document.getElementById('shareLink').value);
+            const txt = encodeURIComponent("দেখি আমার সম্পর্কে কতটুকু জানিস!");
+            const links = { whatsapp: `https://wa.me/?text=${txt}%20${url}`, facebook: `https://facebook.com/sharer/sharer.php?u=${url}` };
+            if(links[p]) window.open(links[p], '_blank');
+        }
     </script>
 </body>
 </html>
