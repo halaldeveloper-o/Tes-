@@ -458,6 +458,7 @@
             showSharePage(id);
         }
 
+        // --- Updated: Leaderboard Display now shows comments ---
         function showSharePage(id) {
             showSection('step3');
             document.getElementById('shareLink').value = `${window.location.origin}${window.location.pathname}?id=${id}`;
@@ -466,9 +467,12 @@
                 const data = snap.data();
                 if(data && data.results) {
                     document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
-                        <div class="flex justify-between bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border-b dark:border-gray-600">
-                            <span class="text-sm font-medium dark:text-gray-200">${r.name} ${r.comment ? '<i class="fas fa-comment text-blue-400 ml-1"></i>' : ''}</span>
-                            <span class="font-bold text-green-600">${r.score}/10</span>
+                        <div class="flex flex-col bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border-b dark:border-gray-600 mb-2">
+                            <div class="flex justify-between items-center w-full">
+                                <span class="text-sm font-bold dark:text-gray-200">${r.name}</span>
+                                <span class="font-bold text-green-600">${r.score}/10</span>
+                            </div>
+                            ${r.comment ? `<p class="mt-1 text-xs italic text-blue-500 dark:text-blue-300">"${r.comment}"</p>` : ''}
                         </div>
                     `).join('');
                 }
@@ -621,24 +625,35 @@
             }
         }
 
-        // --- Feature 4: Interactive Result Messaging ---
+        // --- Updated: Advanced Comment Saving System ---
         async function saveFriendComment() {
             const comment = document.getElementById('friendComment').value.trim();
-            if(!comment) return alert("Write something first!");
+            if(!comment) return alert(currentLang === 'bn' ? "কিছু একটা লিখুন!" : "Write something first!");
             const id = new URLSearchParams(window.location.search).get('id');
             const name = document.getElementById('friendNameInput').value;
             
             showSection('loader');
-            const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
-            const results = snap.data().results;
-            
-            // Find the last result from this name and update it
-            const idx = results.findLastIndex(r => r.name === name);
-            if(idx !== -1) results[idx].comment = comment;
+            try {
+                const docRef = window.fs.doc(window.fs.db, "quizzes", id);
+                const snap = await window.fs.getDoc(docRef);
+                const results = snap.data().results || [];
+                
+                // Find and update the user's last attempt
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].name === name) {
+                        results[i].comment = comment;
+                        break;
+                    }
+                }
 
-            await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), { results });
-            alert(currentLang === 'bn' ? "মেসেজ পাঠানো হয়েছে!" : "Message sent!");
-            showSection('step5');
+                await window.fs.updateDoc(docRef, { results });
+                alert(currentLang === 'bn' ? "মেসেজ পাঠানো হয়েছে!" : "Message sent!");
+                showSection('step5');
+            } catch (err) {
+                console.error(err);
+                alert("Error saving message!");
+                showSection('step5');
+            }
         }
 
         // --- Helper Utilities ---
