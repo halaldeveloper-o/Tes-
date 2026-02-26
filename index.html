@@ -132,7 +132,16 @@
 
         <section id="step5" class="hidden-section text-center">
             <div class="text-7xl mb-4">🏆</div>
-            <div id="finalScore" class="text-7xl font-bold text-green-600 mb-8">0/10</div>
+            <div id="finalScore" class="text-7xl font-bold text-green-600 mb-6">0/10</div>
+            
+            <div id="msgBoxArea" class="mb-6 p-4 bg-gray-50 rounded-2xl border-2 border-dashed border-green-200">
+                <p class="text-[10px] font-bold text-gray-400 mb-2 italic" id="msgLabel">বন্ধুকে একটি মেসেজ দিন (ঐচ্ছিক - সর্বোচ্চ ২০ অক্ষর)</p>
+                <div class="flex gap-2">
+                    <input type="text" id="friendShortMsg" maxlength="20" class="flex-grow p-3 border rounded-xl outline-none text-sm" placeholder="কিছু লিখতে চাইলে...">
+                    <button id="sendMsgBtn" onclick="sendShortMessageToCreator()" class="bg-blue-600 text-white px-4 rounded-xl font-bold active:scale-95 transition text-xs">পাঠান</button>
+                </div>
+            </div>
+
             <button onclick="createNewQuiz()" data-lang="btnResultCreate" class="w-full btn-green py-4 rounded-2xl font-bold shadow-lg">নিজের কুইজ তৈরি করুন 🚀</button>
         </section>
 
@@ -145,7 +154,7 @@
                 <p class="mt-2">Rafiul Hasan Rafin <a href="https://instagram.com/its_rafiul_hasan" target="_blank" class="text-pink-500 ml-1"><i class="fab fa-instagram"></i></a></p>
                 <hr class="my-4">
                 <p data-lang="disclaimerText" class="text-red-500 font-medium leading-relaxed">
-                    ⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ▬▬▬ওমর
+                    ⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️
                 </p>
             </div>
             <button onclick="showSection('step1')" data-lang="btnBack" class="w-full mt-8 text-green-600 font-bold">← ফিরে যাও</button>
@@ -204,11 +213,13 @@
                 btnBack: "← ফিরে যাও", 
                 btnStartQuiz: "কুইজ শুরু করো", 
                 btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", 
-                settingsTitle: "সেটিংস", 
+                settingsTitle: "সেটিিংস", 
                 btnReset: "সব তথ্য মুছুন", 
                 namePlaceholder: "আপনার নাম...", 
                 friendPlaceholder: "তোমার নাম লেখো...",
-                disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। — ওমর ❤️"
+                msgLabel: "বন্ধুকে একটি মেসেজ দিন (ঐচ্ছিক - সর্বোচ্চ ২০ অক্ষর)",
+                msgSuccess: "মেসেজ পাঠানো হয়েছে!",
+                disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️"
             },
             en: { 
                 welcomeTitle: "Create Quiz 🐼", 
@@ -230,7 +241,9 @@
                 btnReset: "Reset All", 
                 namePlaceholder: "Your name...", 
                 friendPlaceholder: "Your name...",
-                disclaimerText: "⚠️ Special Disclaimer: This website is created for entertainment and fun purposes only. Do not take the results seriously. It is simply a medium to share joy with friends. — Omor ❤️"
+                msgLabel: "Leave a message (Optional - Max 20 chars)",
+                msgSuccess: "Message Sent!",
+                disclaimerText: "⚠️ Special Disclaimer: This website is created for entertainment and fun purposes only. Do not take the results seriously. It is simply a medium to share joy with friends. ❤️"
             }
         };
 
@@ -260,6 +273,7 @@
         let friendQIdx = 0;
         let timer;
         let unsubscribe = null;
+        let currentFriendEntryId = null;
 
         function init() {
             document.getElementById('langSwitcher').value = currentLang;
@@ -277,6 +291,7 @@
             });
             document.getElementById('userName').placeholder = texts.namePlaceholder;
             document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder;
+            document.getElementById('msgLabel').innerText = texts.msgLabel;
         }
 
         function changeLanguage(v) {
@@ -356,7 +371,13 @@
                 const data = snap.data();
                 if(data) {
                     document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
-                        <div class="flex justify-between bg-gray-50 p-3 rounded-lg border-b"><span class="text-sm font-medium">${r.name}</span><span class="font-bold text-green-600">${r.score}/10</span></div>
+                        <div class="flex flex-col bg-gray-50 p-3 rounded-lg border-b">
+                            <div class="flex justify-between w-full">
+                                <span class="text-sm font-medium">${r.name}</span>
+                                <span class="font-bold text-green-600">${r.score}/10</span>
+                            </div>
+                            ${r.msg ? `<p class="text-[10px] text-blue-500 italic mt-1 font-bold">💬 ${r.msg}</p>` : ''}
+                        </div>
                     `).join('');
                 }
             });
@@ -459,12 +480,41 @@
             showSection('loader');
             const id = new URLSearchParams(window.location.search).get('id');
             const name = document.getElementById('friendNameInput').value;
+            currentFriendEntryId = "res_" + Date.now();
+            
             await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), {
-                results: window.fs.arrayUnion({ name, score: friendScore })
+                results: window.fs.arrayUnion({ id: currentFriendEntryId, name, score: friendScore, msg: "" })
             });
+            
             showSection('step5');
             document.getElementById('finalScore').innerText = `${friendScore}/10`;
             if(friendScore >= 7) confetti({ particleCount: 150 });
+        }
+
+        // Logic for optional message sending
+        async function sendShortMessageToCreator() {
+            const msg = document.getElementById('friendShortMsg').value.trim();
+            if(!msg) return; // If empty, do nothing
+            
+            document.getElementById('sendMsgBtn').disabled = true;
+            document.getElementById('sendMsgBtn').innerText = "...";
+            
+            const quizId = new URLSearchParams(window.location.search).get('id');
+            const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", quizId));
+            
+            if(snap.exists()){
+                let data = snap.data();
+                let updatedResults = data.results.map(r => {
+                    if(r.id === currentFriendEntryId) return { ...r, msg: msg };
+                    return r;
+                });
+                
+                await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", quizId), {
+                    results: updatedResults
+                });
+                
+                document.getElementById('msgBoxArea').innerHTML = `<p class="text-green-600 font-bold text-xs">${langDict[currentLang].msgSuccess}</p>`;
+            }
         }
 
         function handleAuth() {
