@@ -3,210 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সেহরি ও ইফতারের সময়সূচী ২০২৬</title>
+    <title>Friendship Quiz Pro - Personal V8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --font-color: #ecf0f1;
-            --accent-color: #e74c3c;
-            --card-bg: #34495e;
-            --body-bg: #2c3e50;
-            --modal-bg: rgba(0, 0, 0, 0.9);
-            --success-color: #27ae60;
-        }
-        [data-theme="light"] {
-            --primary-color: #ecf0f1;
-            --secondary-color: #ffffff;
-            --font-color: #2c3e50;
-            --accent-color: #c0392b;
-            --card-bg: #ffffff;
-            --body-bg: #f4f7f6;
-            --success-color: #2ecc71;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--body-bg);
-            color: var(--font-color);
-            transition: background-color 0.3s, color 0.3s;
-            line-height: 1.6;
-            padding-bottom: 50px;
-        }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
-            border-bottom: 2px solid var(--accent-color); 
-            padding-bottom: 10px;
-        }
-        #main-title {
-            font-size: 1.8rem;
-            color: var(--accent-color);
-        }
-        .settings { display: flex; gap: 15px; align-items: center; }
-        .toggle-switch { position: relative; display: inline-block; width: 45px; height: 22px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent-color); }
-        input:checked + .slider:before { transform: translateX(22px); }
-        .card { 
-            background-color: var(--card-bg); 
-            border-radius: 15px; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: background-color 0.3s;
-        }
-        h2 { margin-bottom: 15px; color: var(--accent-color); font-size: 1.4rem; border-left: 5px solid var(--accent-color); padding-left: 10px; }
-        
-        select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; background: var(--body-bg); color: var(--font-color); font-size: 1rem; margin-bottom: 15px; }
-        
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; font-size: 1rem; margin-top: 10px; }
-        .btn:disabled { background-color: #7f8c8d; cursor: not-allowed; }
-        .btn-primary { background-color: var(--accent-color); color: white; }
-        .btn-success { background-color: var(--success-color); color: white; }
-        .btn-info { background-color: #2980b9; color: white; }
-        .btn-secondary { background-color: #7f8c8d; color: white; }
-        .btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-2px); }
-
-        .button-group { display: flex; gap: 10px; }
-
-        .timetable { display: flex; justify-content: space-around; text-align: center; margin: 20px 0; gap: 10px; }
-        .timetable-item { flex: 1; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 10px; }
-        .timetable-item p { font-size: 1.8rem; font-weight: bold; color: var(--accent-color); }
-        
-        #countdown-timer { text-align: center; font-size: 2.5rem; font-weight: bold; color: #f1c40f; margin: 10px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
-        .dua-box { background: rgba(0,0,0,0.05); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px dashed var(--accent-color); }
-        .arabic { font-size: 1.6rem; font-family: 'Noto Naskh Arabic', serif; direction: rtl; display: block; text-align: center; margin: 10px 0; line-height: 2.2; }
-        .translation { font-style: italic; font-size: 0.95rem; display: block; margin-top: 5px; color: var(--font-color); opacity: 0.9; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: var(--modal-bg); overflow-y: auto; padding-top: 50px; }
-        .modal-content { background-color: var(--card-bg); margin: auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; position: relative; }
-        .close-modal { position: absolute; right: 20px; top: 10px; font-size: 30px; cursor: pointer; color: var(--accent-color); }
-        footer { text-align: center; padding: 20px; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 30px; }
-        @media (max-width: 600px) {
-            .timetable { flex-direction: column; }
-            #countdown-timer { font-size: 2rem; }
-            #main-title { font-size: 1.5rem; }
-            .button-group { flex-direction: column; }
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; }
+        .card { border-radius: 1.5rem; transition: 0.3s; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .btn-green { background-color: #28a745; color: white; min-height: 55px; }
+        .hidden-section { display: none !important; }
+        .correct-ans { background-color: #22c55e !important; color: white !important; border-color: #16a34a !important; }
+        .wrong-ans { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
+        .avatar-selected { border: 4px solid #28a745; background-color: #dcfce7; transform: scale(1.05); }
+        .timer-bar { height: 4px; background: #28a745; width: 100%; transition: width 1s linear; }
+        .history-item { cursor: pointer; border-left: 5px solid #28a745; transition: 0.2s; }
+        .history-item:hover { background-color: #f9fafb; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1 id="main-title">ইফতার ও সেহরির সময়সূচী</h1>
-            <div class="settings">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="theme-toggle">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </header>
-        <main>
-            <section class="card">
-                <h2 data-lang-key="location">আপনার জেলা নির্বাচন করুন</h2>
-                <select id="district-select">
-                    <option value="">জেলা সিলেক্ট করুন</option>
-                </select>
-                <div class="button-group">
-                    <button class="btn btn-success" id="auto-location-btn">স্বয়ংক্রিয় লোকেশন</button>
-                    <button class="btn btn-primary" id="search-btn">সময় আপডেট করুন</button>
-                </div>
-                <button class="btn btn-info" id="resource-btn">সতর্কতা ও তথ্য বক্স</button>
-            </section>
-            <section class="card">
-                <h2 data-lang-key="todayTimetable">আজকের সময়সূচী</h2>
-                <div class="timetable">
-                    <div class="timetable-item">
-                        <h3 data-lang-key="sehri">সেহরি (শেষ)</h3>
-                        <p id="sehri-time">--:--</p>
-                    </div>
-                    <div class="timetable-item">
-                        <h3 data-lang-key="iftar">ইফতার (শুরু)</h3>
-                        <p id="iftar-time">--:--</p>
-                    </div>
-                </div>
-                <div style="text-align: center; opacity: 0.8;">
-                    <p id="gregorian-date">-- --- ----</p>
-                    <p id="hijri-date">-- ---- ----</p>
-                </div>
-            </section>
-            <section class="card">
-                <h2 id="countdown-label">পরবর্তী ইভেন্ট</h2>
-                <div id="countdown-timer">00:00:00</div>
-                <button class="btn btn-secondary" id="pdf-download-btn" disabled>পূর্ণাঙ্গ মাসিক ক্যালেন্ডার (PDF)</button>
-            </section>
-            <section class="card">
-                <h2>রোযার দোয়া ও নিয়ত</h2>
-                <div class="dua-box">
-                    <strong>সেহরির দোয়া (নিয়ত):</strong>
-                    <span class="arabic">نَوَيْتُ اَنْ اَصُوْمَ غَدًا مِّنْ شَهْرِ رَمَضَانَ الْمُبَارَكِ فَرْضًا لَّكَ يَا اللهُ فَتَقَبَّلْ مِنِّی اِنَّكَ اَنْتَ السَّمِيْعُ الْعَلِيْمُ</span>
-                    <span class="translation"><b>অর্থ:</b> হে আল্লাহ! আগামীকাল পবিত্র রমজান মাসে তোমার পক্ষ হতে নির্ধারিত ফরজ রোজা রাখার নিয়ত করলাম। অতএব তুমি আমার পক্ষ থেকে তা কবুল করো। নিশ্চয়ই তুমি সর্বশ্রোতা ও সর্বজ্ঞ।</span>
-                </div>
-                <div class="dua-box">
-                    <strong>ইফতারের দোয়া:</strong>
-                    <span class="arabic">اَللَّهُمَّ لَكَ صُمْتُ وَعَلَى رِزْقِكَ اَفْطَرْتُ</span>
-                    <span class="translation"><b>অর্থ:</b> হে আল্লাহ! আমি তোমারই সন্তুষ্টির জন্য রোজা রেখেছি এবং তোমারই দেওয়া রিযিক দিয়ে ইফতার করছি।</span>
-                </div>
-            </section>
-        </main>
-        <footer>
-            <p>&copy; <span id="current-year"></span> সর্বস্বত্ব সংরক্ষিত</p>
-            <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">সঠিক তথ্যের জন্য আমরা দায়বদ্ধ।</p>
-        </footer>
-    </div>
-    <div id="resourceModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 style="border:none; text-align:center;">সতর্কতা ও তথ্য</h2>
-            <hr style="margin-bottom:20px; opacity:0.2;">
-            <div style="font-size: 1rem; line-height: 1.8;">
-                <p><b>১. সময় সতর্কতা:</b> এখানে প্রদর্শিত সময়সমূহ <b>ইসলামিক ফাউন্ডেশন বাংলাদেশ</b> এর ক্যালেন্ডার অনুযায়ী এবং Aladhan API থেকে সংগৃহীত। সতর্কতাস্বরূপ সেহরির শেষ সময়ের অন্তত ৫ মিনিট আগে খাবার শেষ করা এবং ইফতারের সময় হওয়ার সাথে সাথে ইফতার করা উত্তম।</p><br>
-                <p><b>২. ঘড়ির সময়:</b> আপনার ডিভাইসের সময় সঠিক আছে কিনা নিশ্চিত হয়ে নিন। স্থানীয় মসজিদের আজানের সাথে ১-২ মিনিটের পার্থক্য হতে পারে।</p><br>
-                <p><b>৩. ডাটা উৎস:</b> এই অ্যাপটি বৈশ্বিক গণনা পদ্ধতি (Method 5) ব্যবহার করে যা বাংলাদেশের জন্য প্রযোজ্য।</p><br>
-                <p><b>৪. দায়বদ্ধতা:</b> অ্যাপের সকল তথ্য যাচাইকৃত। তবে অনিচ্ছাকৃত ভুলের জন্য আমরা ক্ষমা প্রার্থী এবং দ্রুত সংশোধনে বিশ্বাসী।</p><br>
-                <p style="text-align: center; color: var(--accent-color);"><b>রমজান মোবারক!</b></p>
-            </div>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <div class="w-full max-w-md flex justify-between mb-4 items-center">
+        <div class="flex gap-2">
+            <button onclick="showSection('settings')" class="p-2 bg-white rounded-full shadow text-gray-600 active:scale-90 transition"><i class="fas fa-cog"></i></button>
+            <select id="langSwitcher" onchange="changeLanguage(this.value)" class="bg-white border py-1 px-3 rounded-lg shadow-sm text-xs font-bold outline-none">
+                <option value="bn">বাংলা</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        <div id="userInfo" class="flex items-center gap-2 bg-white px-3 py-1 rounded-full shadow-sm border border-green-50">
+            <div id="userImg" class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden"><i class="fas fa-user text-gray-400 text-[10px]"></i></div>
+            <span id="displayUserName" class="text-[10px] font-bold text-gray-700">Guest</span>
+            <button id="authBtn" onclick="handleAuth()" class="text-[10px] text-blue-600 font-bold ml-1">Login</button>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf-autotable.min.js"></script>
-    <script>
-        const bdDistricts = ["Dhaka", "Chattogram", "Sylhet", "Rajshahi", "Khulna", "Barishal", "Rangpur", "Mymensingh", "Gazipur", "Narayanganj", "Cumilla", "Bogura", "Dinajpur", "Faridpur", "Feni", "Jamalpur", "Jashore", "Kushtia", "Noakhali", "Pabna", "Tangail"].sort();
+
+    <main class="w-full max-w-md bg-white card p-6">
         
-        let countdownInterval;
+        <section id="loader" class="hidden-section text-center py-10">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-green-500"></div>
+        </section>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const districtSelect = document.getElementById('district-select');
-            const searchBtn = document.getElementById('search-btn');
-            const themeToggle = document.getElementById('theme-toggle');
-            const modal = document.getElementById('resourceModal');
-            const resourceBtn = document.getElementById('resource-btn');
-            const closeBtn = document.querySelector('.close-modal');
-            const autoLocationBtn = document.getElementById('auto-location-btn');
+        <section id="step1">
+            <h1 data-lang="welcomeTitle" class="text-2xl font-bold text-center text-green-700 mb-6">কুইজ তৈরি করুন 🐼</h1>
+            <input type="text" id="userName" class="w-full p-4 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-green-500" placeholder="আপনার নাম...">
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50" onclick="selectAvatar(this, '🐼')">
+                    <div class="text-5xl">🐼</div>
+                    <p class="text-[10px] mt-1 font-bold text-gray-500">Male (ছেলে)</p>
+                </div>
+                <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50" onclick="selectAvatar(this, '🐻')">
+                    <div class="text-5xl">🐻</div>
+                    <p class="text-[10px] mt-1 font-bold text-gray-500">Female (মেয়ে)</p>
+                </div>
+                <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50" onclick="selectAvatar(this, '🐨')">
+                    <div class="text-5xl">🐨</div>
+                    <p class="text-[10px] mt-1 font-bold text-gray-500">Others (অন্যান্য)</p>
+                </div>
+            </div>
+            <button onclick="startQuizCreation()" data-lang="btnContinue" class="w-full btn-green py-4 rounded-2xl font-bold mb-4 shadow-lg">চালিয়ে যান →</button>
+            <button onclick="loadUserHistoryUI()" data-lang="btnHistory" class="w-full text-green-600 font-bold text-sm underline">আমার আগের কুইজ ও ইতিহাস দেখুন</button>
+        </section>
 
-            document.getElementById('current-year').textContent = new Date().getFullYear();
+        <section id="step2" class="hidden-section">
+            <div class="flex justify-between items-center mb-2">
+                <span id="qCount" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold"></span>
+                <span id="timerText" class="text-xs font-bold text-red-500"></span>
+            </div>
+            <div id="timerBarParent" class="w-full bg-gray-100 h-1 mb-6 hidden"><div id="qTimerBar" class="timer-bar"></div></div>
+            
+            <div id="customQuestionArea" class="hidden mb-4 p-4 bg-blue-50 rounded-xl">
+                <input type="text" id="customQInput" class="w-full p-2 border rounded mb-2" placeholder="আপনার প্রশ্ন...">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ১">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ২">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ৩">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ৪">
+                </div>
+                <button onclick="saveCustomQuestion()" data-lang="btnSave" class="w-full bg-blue-600 text-white mt-2 py-2 rounded font-bold">সেভ করুন</button>
+            </div>
 
-            bdDistricts.forEach(d => {
-                const opt = document.createElement('option');
-                opt.value = d;
-                opt.textContent = d;
-                districtSelect.appendChild(opt);
-            });
+            <h2 id="currentQuestion" class="text-xl font-bold text-center mb-6 min-h-[60px] text-gray-800"></h2>
+            <div id="optionsGrid" class="grid grid-cols-1 gap-3"></div>
+            
+            <div id="creatorControls" class="mt-8 flex flex-col gap-2 text-center">
+                <button onclick="skipQuestion()" data-lang="btnSkip" class="text-orange-500 font-bold text-sm">এই প্রশ্নটি স্কিপ করুন ➔</button>
+                <button onclick="enableCustomQuestion()" data-lang="btnAddCustom" class="text-blue-500 text-xs underline">নিজের প্রশ্ন যোগ করুন</button>
+            </div>
+        </section>
 
-            // --- Theme Logic ---
-            const currentTheme = localStorage.getItem('theme');
-            if (currentTheme === 'light') {
-                document.body.setAttribute('data-theme', 'light');
-                themeToggle.checked = true;
+        <section id="step3" class="hidden-section text-center">
+            <div class="text-5xl mb-4">🎉</div>
+            <h2 data-lang="shareTitle" class="text-xl font-bold mb-4">কুইজ লিঙ্ক রেডি!</h2>
+            <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 border-2 border-dashed border-green-400 rounded-xl mb-6 text-center text-sm font-medium">
+            
+            <div class="grid grid-cols-5 gap-3 mb-8">
+                <button onclick="shareSocial('whatsapp')" class="flex flex-col items-center gap-1"><i class="fab fa-whatsapp text-4xl text-green-500"></i><span class="text-[8px]">WhatsApp</span></button>
+                <button onclick="shareSocial('facebook')" class="flex flex-col items-center gap-1"><i class="fab fa-facebook text-4xl text-blue-700"></i><span class="text-[8px]">Facebook</span></button>
+                <button onclick="shareSocial('messenger')" class="flex flex-col items-center gap-1"><i class="fab fa-facebook-messenger text-4xl text-blue-500"></i><span class="text-[8px]">Messenger</span></button>
+                <button onclick="shareSocial('instagram')" class="flex flex-col items-center gap-1"><i class="fab fa-instagram text-4xl text-pink-600"></i><span class="text-[8px]">Instagram</span></button>
+                <button onclick="shareSocial('imo')" class="flex flex-col items-center gap-1"><i class="fas fa-comment-dots text-4xl text-blue-400"></i><span class="text-[8px]">IMO</span></button>
+            </div>
+
+            <button onclick="copyLink()" data-lang="btnCopy" class="w-full btn-green py-3 rounded-xl font-bold mb-6">কপি লিঙ্ক</button>
+            
+            <div class="text-left border-t pt-4">
+                <h3 class="font-bold text-gray-700 mb-3 flex justify-between items-center">
+                    <span data-lang="scoreTitle">বন্ধুদের স্কোর:</span>
+                    <button onclick="loadUserHistoryUI()" data-lang="btnHistorySmall" class="text-green-600 text-xs font-bold underline">ইতিহাস</button>
+                </h3>
+                <div id="leaderboardEntries" class="space-y-2 max-h-48 overflow-y-auto"></div>
+            </div>
+            <button onclick="createNewQuiz()" data-lang="btnCreateNew" class="mt-6 text-green-600 font-bold underline text-sm">নতুন কুইজ তৈরি করুন</button>
+        </section>
+
+        <section id="history" class="hidden-section">
+            <h2 data-lang="historyTitle" class="text-xl font-bold mb-4 text-center">কুইজ ইতিহাস</h2>
+            <div id="historyList" class="space-y-3 mb-6 overflow-y-auto max-h-80 px-1"></div>
+            <button onclick="showSection('step1')" data-lang="btnBack" class="w-full text-green-600 font-bold mt-4">← ফিরে যাও</button>
+        </section>
+
+        <section id="step4" class="hidden-section text-center">
+            <div id="friendAvatarDisp" class="text-7xl mb-4">🐼</div>
+            <h2 id="friendWelcomeTxt" class="text-xl font-bold mb-6 text-green-700"></h2>
+            <input type="text" id="friendNameInput" class="w-full p-4 border rounded-xl mb-6 outline-none" placeholder="তোমার নাম লেখো...">
+            <button onclick="startFriendQuiz()" data-lang="btnStartQuiz" class="w-full btn-green py-4 rounded-2xl font-bold">কুইজ শুরু করো</button>
+        </section>
+
+        <section id="step5" class="hidden-section text-center">
+            <div class="text-7xl mb-4">🏆</div>
+            <div id="finalScore" class="text-7xl font-bold text-green-600 mb-8">0/10</div>
+            <button onclick="createNewQuiz()" data-lang="btnResultCreate" class="w-full btn-green py-4 rounded-2xl font-bold shadow-lg">নিজের কুইজ তৈরি করুন 🚀</button>
+        </section>
+
+        <section id="settings" class="hidden-section">
+            <h2 data-lang="settingsTitle" class="text-xl font-bold mb-6 text-center">সেটিংস</h2>
+            <button onclick="resetAllData()" data-lang="btnReset" class="w-full bg-red-500 text-white py-4 rounded-xl mb-8 font-bold">সব তথ্য মুছুন</button>
+            <div class="bg-gray-50 p-5 rounded-2xl border text-sm text-center">
+                <p class="font-bold text-green-700 mb-2 underline">Developers</p>
+                <p>Muhammed Omor <a href="https://facebook.com/muhammedomor.fb" target="_blank" class="text-blue-500 ml-1"><i class="fab fa-facebook"></i></a></p>
+                <p class="mt-2">Rafiul Hasan Rafin <a href="https://instagram.com/its_rafiul_hasan" target="_blank" class="text-pink-500 ml-1"><i class="fab fa-instagram"></i></a></p>
+                <hr class="my-4">
+                <p data-lang="disclaimerText" class="text-red-500 font-medium leading-relaxed">
+                    ⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️▬ওমর
+                </p>
+            </div>
+            <button onclick="showSection('step1')" data-lang="btnBack" class="w-full mt-8 text-green-600 font-bold">← ফিরে যাও</button>
+        </section>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLQcsbwlu3pF2RdUluFC2nKmObkpR6FOM",
+            authDomain: "golpo-kotha-97625.firebaseapp.com",
+            projectId: "golpo-kotha-97625",
+            storageBucket: "golpo-kotha-97625.firebasestorage.app",
+            messagingSenderId: "2490998669",
+            appId: "1:2490998669:web:0ed037a3c9d5ed593827c4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc };
+        window.fbAuth = { auth, signInWithPopup, provider, signOut };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('displayUserName').innerText = user.displayName.split(' ')[0];
+                document.getElementById('userImg').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
+                document.getElementById('authBtn').innerText = "Logout";
             }
+        });
 
-            themeToggle.addEventListener('change', () => {
-                if (themeToggle.checked) {
-                    document.body.setAttribute('data-theme', 'light');
-                
+        init();
+    </script>
+
+    <script>
+        const langDict = {
+            bn: { 
+                welcomeTitle: "কুইজ তৈরি করুন 🐼", 
+                btnContinue: "চালিয়ে যান →", 
+                btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", 
+                btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", 
+                btnAddCustom: "নিজের প্রশ্ন যোগ করুন", 
+                btnSave: "সেভ করুন", 
+                shareTitle: "কুইজ লিঙ্ক রেডি!", 
+                btnCopy: "কপি লিঙ্ক", 
+                scoreTitle: "বন্ধুদের স্কোর:", 
+                btnHistorySmall: "ইতিহাস", 
+                btnCreateNew: "নতুন কুইজ তৈরি করুন", 
+                historyTitle: "কুইজ ইতিহাস", 
+                btnBack: "← ফিরে যাও", 
+                btnStartQuiz: "কুইজ শুরু করো", 
+                btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", 
+                settingsTitle: "সেটিংস", 
+                btnReset: "সব তথ্য মুছুন", 
+                namePlaceholder: "আপনার নাম...", 
+                friendPlaceholder: "তোমার নাম লেখো...",
+                disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️"
+            },
+            en: { 
+                welcomeTitle: "Create Quiz 🐼", 
+                btnContinue: "Continue →", 
+                btnHistory: "View Quiz History", 
+                btnSkip: "Skip question ➔", 
+                btnAddCustom: "Add Custom Question", 
+                btnSave: "Save", 
+                shareTitle: "Link is Ready!", 
+                btnCopy: "Copy Link", 
+                scoreTitle: "Friend Scores:", 
+                btnHistorySmall: "History", 
+                btnCreateNew: "Create New", 
+                historyTitle: "Quiz History", 
+                btnBack: "← Back", 
+                btnStartQuiz: "Start Quiz", 
+                btnResultCreate: "Create Your Own 🚀", 
+                settingsTitle: "Settings", 
+                btnReset: "Reset All", 
+                namePlaceholder: "Your name...", 
+                friendPlaceholder: "Your name...",
+                disclaimerText: "⚠️ Special Disclaimer: This website is created for entertainment and fun purposes only. Do not take the results seriously. It is simply a medium to share joy with friends. ❤️"
+            }
+        };
+
+        const rawPool = [
+            { bn: "{N}-এর পছন্দের রং কি?", en: "Favorite Color of {N}?", o: { bn: ["সাদা", "কালো", "নীল", "লাল"], en: ["White", "Black", "Blue", "Red"] } },
+            { bn: "{N}-এর সবচেয়ে প্রিয় খাবার?", en: "Favorite Food of {N}?", o: { bn: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"], en: ["Kacchi", "Burger", "Khichuri", "Fuchka"] } },
+            { bn: "{N} ভবিষ্যতে কী হতে চান?", en: "What does {N} want to be?", o: { bn: ["বড়লোক", "সফল", "শান্তিতে থাকা", "জানি না"], en: ["Rich", "Successful", "Peaceful", "Unknown"] } },
+            { bn: "{N} সবচেয়ে বেশি কোন অ্যাপ চালায়?", en: "App {N} uses most?", o: { bn: ["FB", "YouTube", "TikTok", "WhatsApp"], en: ["FB", "YouTube", "TikTok", "WhatsApp"] } },
+            { bn: "{N}-এর রাগ কেমন?", en: "How is {N}'s anger?", o: { bn: ["প্রচণ্ড", "অল্প", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
+            { bn: "{N} কার সাথে বেশি কথা বলে?", en: "Who does {N} talk to most?", o: { bn: ["মা", "বন্ধু", "অন্য কেউ", "কারো সাথে না"], en: ["Mom", "Friend", "Other", "Nobody"] } },
+            { bn: "{N}-এর প্রিয় ঋতু কোনটি?", en: "Favorite season of {N}?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
+            { bn: "{N} সবচেয়ে বেশি কী ভয় পায়?", en: "What does {N} fear most?", o: { bn: ["সাপ", "অন্ধকার", "পরীক্ষা", "মানুষ"], en: ["Snake", "Dark", "Exams", "People"] } },
+            { bn: "{N}-এর কাছে টাকা নাকি ভালোবাসা বড়?", en: "Money or Love for {N}?", o: { bn: ["টাকা", "ভালোবাসা", "দুইটাই", "কোনোটাই না"], en: ["Money", "Love", "Both", "None"] } },
+            { bn: "{N} রাত জাগে কেন?", en: "Why does {N} stay up late?", o: { bn: ["ফোন টিপি", "চিন্তা করি", "কাজ করি", "ঘুম আসে না"], en: ["Phone", "Thinking", "Work", "Insomnia"] } },
+            { bn: "{N}-এর প্রিয় শখ কী?", en: "What is {N}'s hobby?", o: { bn: ["বই পড়া", "গেম খেলা", "ছবি তোলা", "গান শোনা"], en: ["Reading", "Gaming", "Photo", "Music"] } },
+            { bn: "{N} পাহাড় নাকি সমুদ্র পছন্দ করে?", en: "Mountain or Sea for {N}?", o: { bn: ["পাহাড়", "সমুদ্র", "দুইটাই", "কোনোটাই না"], en: ["Mountain", "Sea", "Both", "None"] } },
+            { bn: "{N}-এর প্রিয় খেলা কোনটি?", en: "Favorite sport of {N}?", o: { bn: ["ক্রিকেট", "ফুটবল", "লুডু", "ক্যান্ডি ক্রাশ"], en: ["Cricket", "Football", "Ludo", "Candy Crush"] } },
+            { bn: "{N} কি আগে প্রেম করেছে?", en: "Was {N} in love before?", o: { bn: ["হ্যাঁ", "না", "একতরফা", "বলবো না"], en: ["Yes", "No", "One Sided", "Private"] } },
+            { bn: "{N}-কে এক কথায় কী বলা যায়?", en: "One word for {N}?", o: { bn: ["মিশুক", "রাগী", "অলস", "বুদ্ধিমান"], en: ["Social", "Angry", "Lazy", "Smart"] } }
+        ];
+
+        let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '🐼', answers: [], quizId: '' };
+        let currentLang = localStorage.getItem('lang') || 'bn';
+        let activePool = [];
+        let quizFromDB = null;
+        let friendScore = 0;
+        let friendQIdx = 0;
+        let timer;
+        let unsubscribe = null;
+
+        function init() {
+            document.getElementById('langSwitcher').value = currentLang;
+            applyLanguage();
+            const qId = new URLSearchParams(window.location.search).get('id');
+            if (qId) loadFriendMode(qId);
+            else if (userProfile.quizId) showSharePage(userProfile.quizId);
+        }
+
+        function applyLanguage() {
+            const texts = langDict[currentLang];
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if(texts[key]) el.innerText = texts[key];
+            });
+            document.getElementById('userName').placeholder = texts.namePlaceholder;
+            document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder;
+        }
+
+        function changeLanguage(v) {
+            currentLang = v;
+            localStorage.setItem('lang', v);
+            applyLanguage();
+            if(!document.getElementById('step2').classList.contains('hidden-section')) {
+                if(quizFromDB) renderFriendQuestion(); else renderCreatorQuestion();
+            }
+        }
+
+        function startQuizCreation() {
+            const nameInput = document.getElementById('userName').value.trim();
+            if(!nameInput) return alert(currentLang === 'bn' ? "নাম দিন!" : "Enter name!");
+            userProfile.name = nameInput;
+            
+            activePool = rawPool.map(q => ({
+                bn: q.bn.replace(/{N}/g, userProfile.name),
+                en: q.en.replace(/{N}/g, userProfile.name),
+                o: q.o
+            })).sort(() => Math.random() - 0.5);
+
+            showSection('step2');
+            renderCreatorQuestion();
+        }
+
+        function renderCreatorQuestion() {
+            if (userProfile.answers.length >= 10) return saveToCloud();
+            document.getElementById('customQuestionArea').classList.add('hidden');
+            const q = activePool[0];
+            document.getElementById('qCount').innerText = `${userProfile.answers.length + 1}/10`;
+            
+            document.getElementById('currentQuestion').innerText = q[currentLang] || q.bn || "প্রশ্ন লোড হচ্ছে...";
+            
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            q.o[currentLang].forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition hover:bg-green-50";
+                b.innerText = opt;
+                b.onclick = () => {
+                    userProfile.answers.push({ q: {bn: q.bn, en: q.en}, a: i, o: q.o });
+                    activePool.shift();
+                    renderCreatorQuestion();
+                };
+                grid.appendChild(b);
+            });
+        }
+
+        function enableCustomQuestion() { document.getElementById('customQuestionArea').classList.toggle('hidden'); }
+        function saveCustomQuestion() {
+            const qT = document.getElementById('customQInput').value;
+            const oS = Array.from(document.querySelectorAll('.custom-opt')).map(i => i.value);
+            if(!qT || oS.some(o => !o)) return alert("Fill all fields!");
+            userProfile.answers.push({ q: {bn: qT, en: qT}, a: 0, o: { bn: oS, en: oS } });
+            renderCreatorQuestion();
+        }
+        function skipQuestion() { if(activePool.length > 1) { activePool.shift(); renderCreatorQuestion(); } }
+
+        async function saveToCloud() {
+            showSection('loader');
+            const id = "q_" + Date.now();
+            const uid = window.fbAuth.auth.currentUser ? window.fbAuth.auth.currentUser.uid : "guest";
+            userProfile.quizId = id;
+            localStorage.setItem('myQuizProfile', JSON.stringify(userProfile));
+            await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", id), {
+                creator: userProfile.name, creatorId: uid, avatar: userProfile.avatar, answers: userProfile.answers, results: []
+            });
+            showSharePage(id);
+        }
+
+        function showSharePage(id) {
+            showSection('step3');
+            document.getElementById('shareLink').value = `${window.location.origin}${window.location.pathname}?id=${id}`;
+            if(unsubscribe) unsubscribe();
+            unsubscribe = window.fs.onSnapshot(window.fs.doc(window.fs.db, "quizzes", id), (snap) => {
+                const data = snap.data();
+                if(data) {
+                    document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
+                        <div class="flex justify-between bg-gray-50 p-3 rounded-lg border-b"><span class="text-sm font-medium">${r.name}</span><span class="font-bold text-green-600">${r.score}/10</span></div>
+                    `).join('');
+                }
+            });
+        }
+
+        async function loadUserHistoryUI() {
+            const user = window.fbAuth.auth.currentUser;
+            if(!user) return alert(currentLang === 'bn' ? "লগইন করুন!" : "Login first!");
+            showSection('history');
+            const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
+            const snap = await window.fs.getDocs(q);
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                const div = document.createElement('div');
+                div.className = "history-item p-3 bg-white border rounded-lg flex justify-between items-center shadow-sm";
+                div.innerHTML = `
+                    <div onclick="restoreQuiz('${docSnap.id}')" class="flex-grow">
+                        <p class="font-bold text-sm text-gray-700">${d.creator}-এর কুইজ</p>
+                        <p class="text-[10px] text-gray-400">ID: ${docSnap.id}</p>
+                    </div>
+                    <button onclick="deleteQuiz(event, '${docSnap.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.restoreQuiz = (id) => { userProfile.quizId = id; showSharePage(id); };
+        window.deleteQuiz = async (e, id) => {
+            e.stopPropagation();
+            if(!confirm(currentLang === 'bn' ? "ডিলিট করতে চান?" : "Delete?")) return;
+            showSection('loader');
+            await window.fs.deleteDoc(window.fs.doc(window.fs.db, "quizzes", id));
+            if(userProfile.quizId === id) { userProfile.quizId = ""; localStorage.setItem('myQuizProfile', JSON.stringify(userProfile)); }
+            loadUserHistoryUI();
+        };
+
+        async function loadFriendMode(id) {
+            showSection('loader');
+            const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
+            if (snap.exists()) {
+                quizFromDB = snap.data();
+                showSection('step4');
+                document.getElementById('friendAvatarDisp').innerText = quizFromDB.avatar;
+                document.getElementById('friendWelcomeTxt').innerText = currentLang === 'bn' ? `${quizFromDB.creator} সম্পর্কে কতটুকু জানো?` : `How much do you know about ${quizFromDB.creator}?`;
+            } else createNewQuiz();
+        }
+
+        function startFriendQuiz() {
+            if(!document.getElementById('friendNameInput').value) return alert("Name!");
+            showSection('step2');
+            document.getElementById('creatorControls').classList.add('hidden');
+            document.getElementById('timerBarParent').classList.remove('hidden');
+            renderFriendQuestion();
+        }
+
+        function renderFriendQuestion() {
+            clearInterval(timer);
+            let t = 15;
+            const bar = document.getElementById('qTimerBar');
+            bar.style.width = '100%';
+            timer = setInterval(() => {
+                t--; bar.style.width = (t/15*100)+'%';
+                if(t<=0) handleAnswer(-1, null);
+            }, 1000);
+
+            const qD = quizFromDB.answers[friendQIdx];
+            document.getElementById('qCount').innerText = `Q: ${friendQIdx + 1}/10`;
+            
+            document.getElementById('currentQuestion').innerText = (qD.q && qD.q[currentLang]) ? qD.q[currentLang] : (qD.q ? qD.q.bn : "প্রশ্ন খুঁজে পাওয়া যায়নি");
+            
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            qD.o[currentLang].forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = "opt-btn w-full p-4 border-2 rounded-xl text-left font-medium transition";
+                b.innerText = opt;
+                b.onclick = () => handleAnswer(i, b);
+                grid.appendChild(b);
+            });
+        }
+
+        function handleAnswer(i, btn) {
+            clearInterval(timer);
+            const correct = quizFromDB.answers[friendQIdx].a;
+            const btns = document.querySelectorAll('.opt-btn');
+            btns.forEach(b => b.disabled = true);
+            if(i === correct) { if(btn) btn.classList.add('correct-ans'); friendScore++; }
+            else { if(btn) btn.classList.add('wrong-ans'); btns[correct].classList.add('correct-ans'); }
+
+            setTimeout(() => {
+                friendQIdx++;
+                if(friendQIdx < 10) renderFriendQuestion();
+                else finishFriendQuiz();
+            }, 1200);
+        }
+
+        async function finishFriendQuiz() {
+            showSection('loader');
+            const id = new URLSearchParams(window.location.search).get('id');
+            const name = document.getElementById('friendNameInput').value;
+            await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), {
+                results: window.fs.arrayUnion({ name, score: friendScore })
+            });
+            showSection('step5');
+            document.getElementById('finalScore').innerText = `${friendScore}/10`;
+            if(friendScore >= 7) confetti({ particleCount: 150 });
+        }
+
+        function handleAuth() {
+            if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload());
+            else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload());
+        }
+        function createNewQuiz() { localStorage.removeItem('myQuizProfile'); location.href = location.pathname; }
+        function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
+        function selectAvatar(el, icon) { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); el.classList.add('avatar-selected'); userProfile.avatar = icon; }
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("Link Copied!"); }
+        function resetAllData() { if(confirm("Confirm Reset?")) createNewQuiz(); }
+        
+        function shareSocial(p) {
+            const url = encodeURIComponent(document.getElementById('shareLink').value);
+            const txt = encodeURIComponent(currentLang === 'bn' ? "আমার বন্ধুত্ব কুইজটি খেলো!" : "Play my friendship quiz!");
+            const links = { whatsapp: `https://wa.me/?text=${txt}%20${url}`, facebook: `https://facebook.com/sharer/sharer.php?u=${url}`, messenger: `fb-messenger://share?link=${url}`, instagram: `https://instagram.com`, imo: `imo://share?url=${url}` };
+            if(links[p]) window.open(links[p], '_blank');
+        }
+    </script>
+</body>
+</html>
