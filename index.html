@@ -15,29 +15,88 @@
             --dark-bg: #111827;
             --dark-card: #1f2937;
         }
-        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; transition: background-color 0.3s, color 0.3s; }
-        body.dark-mode { background-color: var(--dark-bg); color: #f3f4f6; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #f0fdf4; 
+            transition: background-color 0.3s, color 0.3s; 
+        }
+        body.dark-mode { 
+            background-color: var(--dark-bg); 
+            color: #f3f4f6; 
+        }
         
-        .card { border-radius: 1.5rem; transition: 0.3s; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-        .dark-mode .card { background-color: var(--dark-card); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .card { 
+            border-radius: 1.5rem; 
+            transition: 0.3s; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); 
+        }
+        .dark-mode .card { 
+            background-color: var(--dark-card); 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); 
+        }
         
-        .btn-green { background-color: #28a745; color: white; min-height: 55px; transition: transform 0.1s; }
-        .btn-green:active { transform: scale(0.98); }
+        .btn-green { 
+            background-color: #28a745; 
+            color: white; 
+            min-height: 55px; 
+            transition: transform 0.1s; 
+        }
+        .btn-green:active { 
+            transform: scale(0.98); 
+        }
         
-        .hidden-section { display: none !important; }
-        .correct-ans { background-color: #22c55e !important; color: white !important; border-color: #16a34a !important; animation: pulse 0.5s; }
-        .wrong-ans { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
+        .hidden-section { 
+            display: none !important; 
+        }
+        .correct-ans { 
+            background-color: #22c55e !important; 
+            color: white !important; 
+            border-color: #16a34a !important; 
+            animation: pulse 0.5s; 
+        }
+        .wrong-ans { 
+            background-color: #ef4444 !important; 
+            color: white !important; 
+            border-color: #dc2626 !important; 
+        }
         
-        .avatar-selected { border: 4px solid #28a745; background-color: #dcfce7; transform: scale(1.05); }
-        .dark-mode .avatar-selected { background-color: #374151; border-color: #4ade80; }
+        .avatar-selected { 
+            border: 4px solid #28a745; 
+            background-color: #dcfce7; 
+            transform: scale(1.05); 
+        }
+        .dark-mode .avatar-selected { 
+            background-color: #374151; 
+            border-color: #4ade80; 
+        }
         
         /* High Performance Timer Bar */
-        .timer-container { height: 6px; background: #e5e7eb; border-radius: 10px; overflow: hidden; }
-        .timer-bar { height: 100%; background: linear-gradient(90deg, #22c55e, #10b981); width: 100%; transition: width 1s linear; }
+        .timer-container { 
+            height: 6px; 
+            background: #e5e7eb; 
+            border-radius: 10px; 
+            overflow: hidden; 
+        }
+        .timer-bar { 
+            height: 100%; 
+            background: linear-gradient(90deg, #22c55e, #10b981); 
+            width: 100%; 
+            transition: width 1s linear; 
+        }
         
-        .history-item { cursor: pointer; border-left: 5px solid #28a745; transition: 0.2s; }
-        .dark-mode .history-item { background-color: #374151; border-color: #10b981; color: white; }
-        .history-item:hover { transform: translateX(5px); }
+        .history-item { 
+            cursor: pointer; 
+            border-left: 5px solid #28a745; 
+            transition: 0.2s; 
+        }
+        .dark-mode .history-item { 
+            background-color: #374151; 
+            border-color: #10b981; 
+            color: white; 
+        }
+        .history-item:hover { 
+            transform: translateX(5px); 
+        }
 
         /* Dark Mode Input Visibility Fixes */
         .dark-mode input, .dark-mode select {
@@ -45,7 +104,9 @@
             color: white !important;
             border-color: #4b5563 !important;
         }
-        .dark-mode input::placeholder { color: #9ca3af; }
+        .dark-mode input::placeholder { 
+            color: #9ca3af; 
+        }
 
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -119,12 +180,25 @@
             </div>
             
             <div id="customQuestionArea" class="hidden mb-4 p-4 bg-blue-50 dark:bg-gray-700 rounded-xl border-2 border-blue-200">
+                <p class="text-[10px] font-bold text-blue-600 mb-2">সঠিক উত্তরের পাশে টিক দিন:</p>
                 <input type="text" id="customQInput" class="w-full p-2 border rounded mb-2 text-sm" placeholder="আপনার প্রশ্ন...">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ১">
-                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ২">
-                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ৩">
-                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ৪">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="0" checked class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ১">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="1" class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ২">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="2" class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ৩">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="correctChoice" value="3" class="w-4 h-4 accent-green-600">
+                        <input type="text" class="custom-opt flex-grow p-1 border rounded text-xs" placeholder="অপশন ৪">
+                    </div>
                 </div>
                 <button onclick="saveCustomQuestion()" data-lang="btnSave" class="w-full bg-blue-600 text-white mt-2 py-2 rounded font-bold hover:bg-blue-700">সেভ করুন</button>
             </div>
@@ -348,7 +422,6 @@
             else if (userProfile.quizId) showSharePage(userProfile.quizId);
         }
 
-        // --- Feature 1: Dynamic Language Engine ---
         function applyLanguage() {
             const texts = langDict[currentLang];
             document.querySelectorAll('[data-lang]').forEach(el => {
@@ -363,13 +436,11 @@
             currentLang = v;
             localStorage.setItem('lang', v);
             applyLanguage();
-            // Re-render question if active to update dynamic text
             if(!document.getElementById('step2').classList.contains('hidden-section')) {
                 if(quizFromDB) renderFriendQuestion(); else renderCreatorQuestion();
             }
         }
 
-        // --- Feature 2: Theme Persistence ---
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
             document.body.classList.toggle('dark-mode', isDarkMode);
@@ -383,7 +454,6 @@
             btn.className = isDarkMode ? 'p-2 bg-gray-800 rounded-full shadow text-yellow-400 active:scale-90 transition' : 'p-2 bg-white rounded-full shadow text-gray-600 active:scale-90 transition';
         }
 
-        // --- Quiz Creation Logic ---
         function startQuizCreation() {
             const nameInput = document.getElementById('userName').value.trim();
             if(!nameInput) return alert(currentLang === 'bn' ? "নাম দিন!" : "Please enter your name!");
@@ -400,7 +470,6 @@
         }
 
         function renderCreatorQuestion() {
-            // STRICT GUIDELINE: Exactly 10 questions
             if (userProfile.answers.length >= 10) return saveToCloud();
             
             document.getElementById('customQuestionArea').classList.add('hidden');
@@ -423,13 +492,27 @@
             });
         }
 
-        function enableCustomQuestion() { document.getElementById('customQuestionArea').classList.toggle('hidden'); }
+        function enableCustomQuestion() { 
+            document.getElementById('customQuestionArea').classList.toggle('hidden'); 
+        }
         
         function saveCustomQuestion() {
             const qT = document.getElementById('customQInput').value;
             const oS = Array.from(document.querySelectorAll('.custom-opt')).map(i => i.value);
-            if(!qT || oS.some(o => !o)) return alert("Please fill all fields!");
-            userProfile.answers.push({ q: {bn: qT, en: qT}, a: 0, o: { bn: oS, en: oS } });
+            const selectedIdx = parseInt(document.querySelector('input[name="correctChoice"]:checked').value);
+            
+            if(!qT || oS.some(o => !o)) return alert("সব ঘর পূরণ করুন!");
+            
+            userProfile.answers.push({ 
+                q: {bn: qT, en: qT}, 
+                a: selectedIdx, 
+                o: { bn: oS, en: oS } 
+            });
+            
+            // Clear inputs for next time
+            document.getElementById('customQInput').value = "";
+            document.querySelectorAll('.custom-opt').forEach(i => i.value = "");
+            
             renderCreatorQuestion();
         }
 
@@ -458,7 +541,6 @@
             showSharePage(id);
         }
 
-        // --- Updated: Leaderboard Display now shows comments ---
         function showSharePage(id) {
             showSection('step3');
             document.getElementById('shareLink').value = `${window.location.origin}${window.location.pathname}?id=${id}`;
@@ -479,7 +561,6 @@
             });
         }
 
-        // --- History Logic ---
         async function loadUserHistoryUI() {
             const user = window.fbAuth.auth.currentUser;
             if(!user) return alert(currentLang === 'bn' ? "লগইন করুন!" : "Please login to view history!");
@@ -504,9 +585,11 @@
             });
         }
 
-        window.restoreQuiz = (id) => { userProfile.quizId = id; showSharePage(id); };
+        window.restoreQuiz = (id) => { 
+            userProfile.quizId = id; 
+            showSharePage(id); 
+        };
 
-        // --- Feature 8: Permanent History Wipe (Cloud Fix) ---
         window.deleteQuiz = async (e, id) => {
             e.stopPropagation();
             if(!confirm(currentLang === 'bn' ? "এটি স্থায়ীভাবে মুছে ফেলবে। নিশ্চিত?" : "Permanently delete from cloud?")) return;
@@ -524,7 +607,6 @@
             }
         };
 
-        // --- Friend Interaction Mode ---
         async function loadFriendMode(id) {
             showSection('loader');
             const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
@@ -547,7 +629,6 @@
             renderFriendQuestion();
         }
 
-        // --- Feature 6: Visual Timer Logic ---
         function renderFriendQuestion() {
             clearInterval(timer);
             let timeLeft = 15;
@@ -577,7 +658,6 @@
             });
         }
 
-        // --- Feature 5: Audio Feedback ---
         function handleAnswer(i, btn) {
             clearInterval(timer);
             const correct = quizFromDB.answers[friendQIdx].a;
@@ -606,7 +686,6 @@
             const id = new URLSearchParams(window.location.search).get('id');
             const name = document.getElementById('friendNameInput').value;
             
-            // Initial save of result
             await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), {
                 results: window.fs.arrayUnion({ name, score: friendScore, comment: "" })
             });
@@ -614,7 +693,6 @@
             showSection('step5');
             document.getElementById('finalScore').innerText = `${friendScore}/10`;
             
-            // --- Feature 7: High-Performance Confetti (>=70%) ---
             if(friendScore >= 7) {
                 confetti({
                     particleCount: 150,
@@ -625,7 +703,6 @@
             }
         }
 
-        // --- Updated: Advanced Comment Saving System ---
         async function saveFriendComment() {
             const comment = document.getElementById('friendComment').value.trim();
             if(!comment) return alert(currentLang === 'bn' ? "কিছু একটা লিখুন!" : "Write something first!");
@@ -638,7 +715,6 @@
                 const snap = await window.fs.getDoc(docRef);
                 const results = snap.data().results || [];
                 
-                // Find and update the user's last attempt
                 for (let i = results.length - 1; i >= 0; i--) {
                     if (results[i].name === name) {
                         results[i].comment = comment;
@@ -656,16 +732,33 @@
             }
         }
 
-        // --- Helper Utilities ---
         function handleAuth() {
             if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload());
             else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload());
         }
-        function createNewQuiz() { localStorage.removeItem('myQuizProfile'); location.href = location.pathname; }
-        function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
-        function selectAvatar(el, icon) { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); el.classList.add('avatar-selected'); userProfile.avatar = icon; }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("Link Copied!"); }
-        function resetAllData() { if(confirm("This will clear all your progress. Continue?")) { localStorage.clear(); location.reload(); } }
+        function createNewQuiz() { 
+            localStorage.removeItem('myQuizProfile'); 
+            location.href = location.pathname; 
+        }
+        function showSection(id) { 
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); 
+            document.getElementById(id).classList.remove('hidden-section'); 
+        }
+        function selectAvatar(el, icon) { 
+            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); 
+            el.classList.add('avatar-selected'); 
+            userProfile.avatar = icon; 
+        }
+        function copyLink() { 
+            navigator.clipboard.writeText(document.getElementById('shareLink').value); 
+            alert("Link Copied!"); 
+        }
+        function resetAllData() { 
+            if(confirm("This will clear all your progress. Continue?")) { 
+                localStorage.clear(); 
+                location.reload(); 
+            } 
+        }
         
         function shareSocial(p) {
             const url = encodeURIComponent(document.getElementById('shareLink').value);
