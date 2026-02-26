@@ -113,6 +113,16 @@
             50% { transform: scale(1.02); }
             100% { transform: scale(1); }
         }
+        
+        /* Notification Pulse Animation */
+        .unread-badge {
+            animation: ring 1.5s infinite;
+        }
+        @keyframes ring {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4">
@@ -289,7 +299,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -307,7 +317,7 @@
         const provider = new GoogleAuthProvider();
 
         // Export to Global window object for access in standard scripts
-        window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy, serverTimestamp };
+        window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy, serverTimestamp, limit };
         window.fbAuth = { auth, signInWithPopup, provider, signOut };
 
         onAuthStateChanged(auth, async (user) => {
@@ -315,6 +325,7 @@
                 document.getElementById('displayUserName').innerText = user.displayName.split(' ')[0];
                 document.getElementById('userImg').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
                 document.getElementById('authBtn').innerText = "Logout";
+                initGlobalNotificationListener();
             } else {
                 document.getElementById('displayUserName').innerText = "Guest";
                 document.getElementById('userImg').innerHTML = `<i class="fas fa-user text-gray-400 text-[10px]"></i>`;
@@ -775,20 +786,23 @@
 
         /* --- REAL-TIME CHAT FEATURE INJECTION (APPENDED) --- */
         
-        // Append Chat FAB to body
+        // Append Chat FAB with Notification Badge to body
         const fabHtml = `
-            <button id="chatFab" onclick="toggleChatOverlay()" class="fixed bottom-6 right-6 w-14 h-14 bg-green-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-[9999] hover:scale-110 active:scale-90 transition-all">
-                <i class="fas fa-comment-dots"></i>
-            </button>
+            <div id="chatFabContainer" class="fixed bottom-6 right-6 z-[9999]">
+                <button id="chatFab" onclick="toggleChatOverlay()" class="w-14 h-14 bg-green-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 active:scale-90 transition-all relative">
+                    <i class="fas fa-comment-dots"></i>
+                    <span id="globalChatBadge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white text-[10px] flex items-center justify-center unread-badge font-bold text-white">!</span>
+                </button>
+            </div>
         `;
         document.body.insertAdjacentHTML('beforeend', fabHtml);
 
         // Append Chat Overlay to body
         const chatOverlayHtml = `
             <section id="chatOverlay" class="fixed inset-0 bg-white dark:bg-gray-900 z-[10000] hidden flex flex-col">
-                <div class="p-4 border-b dark:border-gray-800 flex items-center gap-4 bg-white dark:bg-gray-800 sticky top-0">
+                <div class="p-4 border-b dark:border-gray-800 flex items-center gap-4 bg-white dark:bg-gray-800 sticky top-0 shadow-sm">
                     <button onclick="toggleChatOverlay()" class="text-xl text-gray-600 dark:text-gray-300"><i class="fas fa-arrow-left"></i></button>
-                    <h2 id="chatHeaderTitle" class="font-bold text-lg dark:text-white">বন্ধুদের সাথে চ্যাট</h2>
+                    <h2 class="font-bold text-lg dark:text-white">বন্ধুদের সাথে চ্যাট</h2>
                 </div>
                 
                 <div id="chatUserList" class="flex-grow overflow-y-auto p-4 space-y-3">
@@ -796,14 +810,19 @@
                 </div>
 
                 <div id="activeChatWindow" class="hidden fixed inset-0 bg-white dark:bg-gray-900 flex flex-col z-[10001]">
-                    <div class="p-4 border-b dark:border-gray-700 flex items-center gap-4 bg-white dark:bg-gray-800">
+                    <div class="p-4 border-b dark:border-gray-700 flex items-center gap-4 bg-white dark:bg-gray-800 shadow-sm">
                         <button onclick="closeActiveChat()" class="text-xl text-gray-600 dark:text-gray-300"><i class="fas fa-arrow-left"></i></button>
-                        <span id="activeChatPartnerName" class="font-bold dark:text-white">Chat</span>
+                        <div class="flex flex-col">
+                            <span id="activeChatPartnerName" class="font-bold dark:text-white leading-none">Chat</span>
+                            <span class="text-[10px] text-green-500 font-bold">Online</span>
+                        </div>
                     </div>
-                    <div id="messageDisplay" class="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800"></div>
-                    <div class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-900 flex gap-2">
-                        <input id="chatInput" type="text" class="flex-grow p-3 border rounded-2xl outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600" placeholder="কিছু লেখুন...">
-                        <button onclick="sendChatMessage()" class="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                    <div id="messageDisplay" class="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800" style="scroll-behavior: smooth;"></div>
+                    <div class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-900 flex gap-2 items-center">
+                        <input id="chatInput" type="text" class="flex-grow p-3 border rounded-2xl outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600 text-sm" placeholder="মেসেজ লিখুন...">
+                        <button onclick="sendChatMessage()" class="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
                 </div>
             </section>
@@ -812,6 +831,7 @@
 
         let currentChatId = null;
         let chatUnsubscribe = null;
+        let globalUnsubscribe = null;
 
         function toggleChatOverlay() {
             const user = window.fbAuth.auth.currentUser;
@@ -821,6 +841,7 @@
             overlay.classList.toggle('hidden');
             if(!overlay.classList.contains('hidden')) {
                 loadChatUsers();
+                document.getElementById('globalChatBadge').classList.add('hidden');
             }
         }
 
@@ -830,55 +851,44 @@
             container.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner animate-spin text-2xl text-green-500"></i></div>';
 
             try {
-                // Fetch all quizzes where current user is creator OR current user name exists in results
-                const q1 = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", currentUser.uid));
-                const snap1 = await window.fs.getDocs(q1);
+                // Fetch creators and solved users logic
+                const qSolved = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.orderBy("createdAt", "desc"), window.fs.limit(50));
+                const snap = await window.fs.getDocs(qSolved);
                 
-                // Get general users who have interacted
-                const interactedUsers = new Map();
-
-                snap1.forEach(doc => {
-                    const data = doc.data();
-                    if(data.results) {
-                        data.results.forEach(res => {
-                            if(res.name) interactedUsers.set(res.name, { name: res.name, uid: "guest_id" });
+                const userMap = new Map();
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    // If currentUser created it, add people who solved it
+                    if(d.creatorId === currentUser.uid) {
+                        d.results.forEach(r => {
+                            if(r.name && !userMap.has(r.name)) userMap.set(r.name, { name: r.name, uid: "guest_ptr_" + r.name, avatar: "👤" });
                         });
                     }
-                });
-
-                // Since Firestore doesn't support complex joins, we show unique creators found in the system
-                const q2 = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.orderBy("createdAt", "desc"));
-                const snap2 = await window.fs.getDocs(q2);
-                
-                const userList = [];
-                const seenUids = new Set();
-                seenUids.add(currentUser.uid);
-
-                snap2.forEach(doc => {
-                    const d = doc.data();
-                    if(d.creatorId && !seenUids.has(d.creatorId)) {
-                        userList.push({ name: d.creator, uid: d.creatorId, avatar: d.avatar || '👤' });
-                        seenUids.add(d.creatorId);
+                    // Add other quiz creators
+                    if(d.creatorId && d.creatorId !== currentUser.uid) {
+                        userMap.set(d.creatorId, { name: d.creator, uid: d.creatorId, avatar: d.avatar || "👤" });
                     }
                 });
 
+                const userList = Array.from(userMap.values());
+
                 if(userList.length === 0) {
-                    container.innerHTML = '<p class="text-center text-gray-500">এখনো কোনো বন্ধু পাওয়া যায়নি। লিঙ্ক শেয়ার করুন!</p>';
+                    container.innerHTML = '<p class="text-center text-gray-500 text-sm mt-10">এখনো কোনো বন্ধু পাওয়া যায়নি। <br>আপনার কুইজ লিঙ্ক শেয়ার করুন!</p>';
                     return;
                 }
 
                 container.innerHTML = userList.map(u => `
-                    <div onclick="openConversation('${u.uid}', '${u.name}')" class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition">
+                    <div onclick="openConversation('${u.uid}', '${u.name}')" class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition border dark:border-gray-700">
                         <div class="w-12 h-12 bg-green-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl">${u.avatar}</div>
                         <div>
-                            <p class="font-bold dark:text-white">${u.name}</p>
-                            <p class="text-[10px] text-gray-500">চ্যাট করতে ট্যাপ করুন</p>
+                            <p class="font-bold dark:text-white text-sm">${u.name}</p>
+                            <p class="text-[10px] text-gray-500">মেসেজ পাঠাতে ক্লিক করুন</p>
                         </div>
                     </div>
                 `).join('');
 
             } catch (err) {
-                container.innerHTML = '<p class="text-red-500 text-center">Error loading users.</p>';
+                container.innerHTML = '<p class="text-red-500 text-center text-xs">লোড করতে সমস্যা হয়েছে।</p>';
             }
         }
 
@@ -915,9 +925,10 @@
                     const msg = doc.data();
                     const isMe = msg.senderId === currentUser.uid;
                     const msgHtml = `
-                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                            <div class="max-w-[80%] p-3 rounded-2xl ${isMe ? 'bg-green-600 text-white rounded-tr-none' : 'bg-white dark:bg-gray-700 dark:text-white rounded-tl-none shadow-sm'}">
-                                <p class="text-sm">${msg.text}</p>
+                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                            <span class="text-[8px] text-gray-400 mb-1 px-2">${msg.senderName || 'User'}</span>
+                            <div class="max-w-[85%] p-3 rounded-2xl shadow-sm ${isMe ? 'bg-green-600 text-white rounded-tr-none' : 'bg-white dark:bg-gray-700 dark:text-white rounded-tl-none'}">
+                                <p class="text-sm leading-relaxed">${msg.text}</p>
                             </div>
                         </div>
                     `;
@@ -938,13 +949,32 @@
             try {
                 await window.fs.addDoc(window.fs.collection(window.fs.db, "chats", currentChatId, "messages"), {
                     senderId: currentUser.uid,
-                    senderName: currentUser.displayName,
+                    senderName: currentUser.displayName, // Firebase Auth নাম ব্যবহার হচ্ছে
                     text: text,
                     timestamp: window.fs.serverTimestamp()
                 });
             } catch (err) {
                 console.error("Chat Error:", err);
             }
+        }
+
+        function initGlobalNotificationListener() {
+            const user = window.fbAuth.auth.currentUser;
+            if(!user) return;
+
+            // Simplified: Listen to chat collection for activity. 
+            // Real unread logic would require a separate counter field, 
+            // but for this SPA, we trigger the badge on any recent message change.
+            const q = window.fs.query(window.fs.collectionGroup(window.fs.db, "messages"), window.fs.orderBy("timestamp", "desc"), window.fs.limit(1));
+            
+            globalUnsubscribe = window.fs.onSnapshot(q, (snap) => {
+                if(!snap.empty && document.getElementById('chatOverlay').classList.contains('hidden')) {
+                    const lastMsg = snap.docs[0].data();
+                    if(lastMsg.senderId !== user.uid) {
+                        document.getElementById('globalChatBadge').classList.remove('hidden');
+                    }
+                }
+            });
         }
     </script>
 </body>
