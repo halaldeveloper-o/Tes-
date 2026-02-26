@@ -70,6 +70,7 @@
             border-color: #4ade80; 
         }
         
+        /* High Performance Timer Bar */
         .timer-container { 
             height: 6px; 
             background: #e5e7eb; 
@@ -97,6 +98,7 @@
             transform: translateX(5px); 
         }
 
+        /* Dark Mode Input Visibility Fixes */
         .dark-mode input, .dark-mode select {
             background-color: #374151 !important;
             color: white !important;
@@ -104,53 +106,6 @@
         }
         .dark-mode input::placeholder { 
             color: #9ca3af; 
-        }
-
-        /* --- New Real-Time Chat Full Screen UI --- */
-        #chatOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-        }
-        .dark-mode #chatOverlay {
-            background: var(--dark-bg);
-        }
-        .chat-header {
-            padding: 15px;
-            background: var(--primary-green);
-            color: white;
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-        }
-        .msg-bubble {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .msg-sent {
-            background: var(--primary-green);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .msg-received {
-            background: #e5e7eb;
-            color: #333;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
-        .dark-mode .msg-received {
-            background: #374151;
-            color: white;
         }
 
         @keyframes pulse {
@@ -174,9 +129,6 @@
                 <option value="bn">বাংলা</option>
                 <option value="en">English</option>
             </select>
-            <button onclick="openChatList()" class="p-2 bg-green-500 rounded-full shadow text-white active:scale-90 transition">
-                <i class="fas fa-comments"></i>
-            </button>
         </div>
         <div id="userInfo" class="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-sm border border-green-50 dark:border-gray-700">
             <div id="userImg" class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -335,25 +287,9 @@
 
     </main>
 
-    <div id="chatOverlay">
-        <div class="chat-header">
-            <button onclick="closeChat()" class="mr-4"><i class="fas fa-arrow-left"></i></button>
-            <span id="chatTitle">মেসেজ লিস্ট</span>
-        </div>
-        <div id="chatListArea" class="flex-grow overflow-y-auto">
-            </div>
-        <div id="chatMessageArea" class="hidden flex-grow flex flex-col">
-            <div id="msgFlow" class="flex-grow p-4 overflow-y-auto flex flex-col"></div>
-            <div class="p-3 border-t flex gap-2">
-                <input id="mInput" class="flex-grow p-2 border rounded-full outline-none" placeholder="লিখুন...">
-                <button onclick="sendRealTimeMsg()" class="bg-green-500 text-white w-10 h-10 rounded-full"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -370,7 +306,8 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy };
+        // Export to Global window object for access in standard scripts
+        window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, orderBy, serverTimestamp };
         window.fbAuth = { auth, signInWithPopup, provider, signOut };
 
         onAuthStateChanged(auth, async (user) => {
@@ -389,9 +326,56 @@
     </script>
 
     <script>
+        // --- Core Dictionary ---
         const langDict = {
-            bn: { welcomeTitle: "কুইজ তৈরি করুন 🐼", btnContinue: "চালিয়ে যান →", btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", btnAddCustom: "নিজের প্রশ্ন যোগ করুন", btnSave: "সেভ করুন", shareTitle: "কুইজ লিঙ্ক রেডি!", btnCopy: "কপি লিঙ্ক", scoreTitle: "বন্ধুদের স্কোর:", btnHistorySmall: "ইতিহাস", btnCreateNew: "নতুন কুইজ তৈরি করুন", historyTitle: "কুইজ ইতিহাস", btnBack: "← ফিরে যাও", btnStartQuiz: "কুইজ শুরু করো", btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", settingsTitle: "সেটিংস", btnReset: "সব তথ্য মুছুন", namePlaceholder: "আপনার নাম...", friendPlaceholder: "তোমার নাম লেখো...", msgPrompt: "বন্ধুর জন্য একটি মেসেজ লিখে দাও:", btnSendMessage: "মেসেজ পাঠান", disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ❤️" },
-            en: { welcomeTitle: "Create Your Quiz 🐼", btnContinue: "Continue →", btnHistory: "View Quiz History", btnSkip: "Skip question ➔", btnAddCustom: "Add Custom Question", btnSave: "Save", shareTitle: "Quiz Link is Ready!", btnCopy: "Copy Link", scoreTitle: "Friend Scores:", btnHistorySmall: "History", btnCreateNew: "Create New Quiz", historyTitle: "Quiz History", btnBack: "← Back", btnStartQuiz: "Start Quiz", btnResultCreate: "Create Your Own 🚀", settingsTitle: "Settings", btnReset: "Reset All Data", namePlaceholder: "Your name...", friendPlaceholder: "Your name...", msgPrompt: "Leave a message for your friend:", btnSendMessage: "Send Message", disclaimerText: "⚠️ Special Disclaimer: This website is for entertainment purposes only. ❤️" }
+            bn: { 
+                welcomeTitle: "কুইজ তৈরি করুন 🐼", 
+                btnContinue: "চালিয়ে যান →", 
+                btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", 
+                btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", 
+                btnAddCustom: "নিজের প্রশ্ন যোগ করুন", 
+                btnSave: "সেভ করুন", 
+                shareTitle: "কুইজ লিঙ্ক রেডি!", 
+                btnCopy: "কপি লিঙ্ক", 
+                scoreTitle: "বন্ধুদের স্কোর:", 
+                btnHistorySmall: "ইতিহাস", 
+                btnCreateNew: "নতুন কুইজ তৈরি করুন", 
+                historyTitle: "কুইজ ইতিহাস", 
+                btnBack: "← ফিরে যাও", 
+                btnStartQuiz: "কুইজ শুরু করো", 
+                btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", 
+                settingsTitle: "সেটিংস", 
+                btnReset: "সব তথ্য মুছুন", 
+                namePlaceholder: "আপনার নাম...", 
+                friendPlaceholder: "তোমার নাম লেখো...",
+                msgPrompt: "বন্ধুর জন্য একটি মেসেজ লিখে দাও:",
+                btnSendMessage: "মেসেজ পাঠান",
+                disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️"
+            },
+            en: { 
+                welcomeTitle: "Create Your Quiz 🐼", 
+                btnContinue: "Continue →", 
+                btnHistory: "View Quiz History", 
+                btnSkip: "Skip question ➔", 
+                btnAddCustom: "Add Custom Question", 
+                btnSave: "Save", 
+                shareTitle: "Quiz Link is Ready!", 
+                btnCopy: "Copy Link", 
+                scoreTitle: "Friend Scores:", 
+                btnHistorySmall: "History", 
+                btnCreateNew: "Create New Quiz", 
+                historyTitle: "Quiz History", 
+                btnBack: "← Back", 
+                btnStartQuiz: "Start Quiz", 
+                btnResultCreate: "Create Your Own 🚀", 
+                settingsTitle: "Settings", 
+                btnReset: "Reset All Data", 
+                namePlaceholder: "Your name...", 
+                friendPlaceholder: "Your name...",
+                msgPrompt: "Leave a message for your friend:",
+                btnSendMessage: "Send Message",
+                disclaimerText: "⚠️ Special Disclaimer: This website is for entertainment purposes only. Do not take results seriously. ❤️"
+            }
         };
 
         const rawPool = [
@@ -404,9 +388,15 @@
             { bn: "{N}-এর প্রিয় ঋতু কোনটি?", en: "Favorite season of {N}?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
             { bn: "{N} সবচেয়ে বেশি কী ভয় পায়?", en: "What does {N} fear most?", o: { bn: ["সাপ", "অন্ধকার", "পরীক্ষা", "মানুষ"], en: ["Snake", "Dark", "Exams", "People"] } },
             { bn: "{N}-এর কাছে টাকা নাকি ভালোবাসা বড়?", en: "Money or Love for {N}?", o: { bn: ["টাকা", "ভালোবাসা", "দুইটাই", "কোনোটাই না"], en: ["Money", "Love", "Both", "None"] } },
-            { bn: "{N} রাত জাগে কেন?", en: "Why does {N} stay up late?", o: { bn: ["ফোন টিপি", "চিন্তা করি", "কাজ করি", "ঘুম আসে না"], en: ["Social Media", "Thinking", "Working", "Insomnia"] } }
+            { bn: "{N} রাত জাগে কেন?", en: "Why does {N} stay up late?", o: { bn: ["ফোন টিপি", "চিন্তা করি", "কাজ করি", "ঘুম আসে না"], en: ["Social Media", "Thinking", "Working", "Insomnia"] } },
+            { bn: "{N}-এর প্রিয় শখ কী?", en: "What is {N}'s hobby?", o: { bn: ["বই পড়া", "গেম খেলা", "ছবি তোলা", "গান শোনা"], en: ["Reading", "Gaming", "Photography", "Music"] } },
+            { bn: "{N} পাহাড় নাকি সমুদ্র পছন্দ করে?", en: "Mountain or Sea for {N}?", o: { bn: ["পাহাড়", "সমুদ্র", "দুইটাই", "কোনোটাই না"], en: ["Mountain", "Sea", "Both", "None"] } },
+            { bn: "{N}-এর প্রিয় খেলা কোনটি?", en: "Favorite sport of {N}?", o: { bn: ["ক্রিকেট", "ফুটবল", "লুডু", "ক্যান্ডি ক্রাশ"], en: ["Cricket", "Football", "Ludo", "Candy Crush"] } },
+            { bn: "{N} কি আগে প্রেম করেছে?", en: "Was {N} in love before?", o: { bn: ["হ্যাঁ", "না", "একতরফা", "বলবো না"], en: ["Yes", "No", "One Sided", "Private"] } },
+            { bn: "{N}-কে এক কথায় কী বলা যায়?", en: "One word for {N}?", o: { bn: ["মিশুক", "রাগী", "অলস", "বুদ্ধিমান"], en: ["Friendly", "Angry", "Lazy", "Smart"] } }
         ];
 
+        // --- State Management ---
         let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '🐼', answers: [], quizId: '' };
         let currentLang = localStorage.getItem('lang') || 'bn';
         let isDarkMode = localStorage.getItem('theme') === 'dark';
@@ -416,14 +406,17 @@
         let friendQIdx = 0;
         let timer;
         let unsubscribe = null;
-        let currentChatId = null;
-        let msgUnsub = null;
+
+        // --- Audio Assets ---
+        const soundCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+        const soundWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');
 
         function init() {
             document.getElementById('langSwitcher').value = currentLang;
             if (isDarkMode) document.body.classList.add('dark-mode');
             updateThemeUI();
             applyLanguage();
+            
             const qId = new URLSearchParams(window.location.search).get('id');
             if (qId) loadFriendMode(qId);
             else if (userProfile.quizId) showSharePage(userProfile.quizId);
@@ -443,6 +436,9 @@
             currentLang = v;
             localStorage.setItem('lang', v);
             applyLanguage();
+            if(!document.getElementById('step2').classList.contains('hidden-section')) {
+                if(quizFromDB) renderFriendQuestion(); else renderCreatorQuestion();
+            }
         }
 
         function toggleDarkMode() {
@@ -455,32 +451,37 @@
         function updateThemeUI() {
             const btn = document.getElementById('themeToggle');
             btn.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            btn.className = isDarkMode ? 'p-2 bg-gray-800 rounded-full shadow text-yellow-400 active:scale-90 transition' : 'p-2 bg-white rounded-full shadow text-gray-600 active:scale-90 transition';
         }
 
         function startQuizCreation() {
             const nameInput = document.getElementById('userName').value.trim();
-            if(!nameInput) return alert("নাম দিন!");
+            if(!nameInput) return alert(currentLang === 'bn' ? "নাম দিন!" : "Please enter your name!");
             userProfile.name = nameInput;
+            
             activePool = rawPool.map(q => ({
                 bn: q.bn.replace(/{N}/g, userProfile.name),
                 en: q.en.replace(/{N}/g, userProfile.name),
                 o: q.o
             })).sort(() => Math.random() - 0.5);
+
             showSection('step2');
             renderCreatorQuestion();
         }
 
         function renderCreatorQuestion() {
             if (userProfile.answers.length >= 10) return saveToCloud();
+            
             document.getElementById('customQuestionArea').classList.add('hidden');
             const q = activePool[0];
             document.getElementById('qCount').innerText = `${userProfile.answers.length + 1}/10`;
             document.getElementById('currentQuestion').innerText = q[currentLang];
+            
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
             q.o[currentLang].forEach((opt, i) => {
                 const b = document.createElement('button');
-                b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition dark:border-gray-600 dark:text-gray-200";
+                b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition hover:bg-green-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-gray-200";
                 b.innerText = opt;
                 b.onclick = () => {
                     userProfile.answers.push({ q: {bn: q.bn, en: q.en}, a: i, o: q.o });
@@ -491,18 +492,36 @@
             });
         }
 
-        function enableCustomQuestion() { document.getElementById('customQuestionArea').classList.toggle('hidden'); }
+        function enableCustomQuestion() { 
+            document.getElementById('customQuestionArea').classList.toggle('hidden'); 
+        }
         
         function saveCustomQuestion() {
             const qT = document.getElementById('customQInput').value;
             const oS = Array.from(document.querySelectorAll('.custom-opt')).map(i => i.value);
             const selectedIdx = parseInt(document.querySelector('input[name="correctChoice"]:checked').value);
+            
             if(!qT || oS.some(o => !o)) return alert("সব ঘর পূরণ করুন!");
-            userProfile.answers.push({ q: {bn: qT, en: qT}, a: selectedIdx, o: { bn: oS, en: oS } });
+            
+            userProfile.answers.push({ 
+                q: {bn: qT, en: qT}, 
+                a: selectedIdx, 
+                o: { bn: oS, en: oS } 
+            });
+            
+            // Clear inputs for next time
+            document.getElementById('customQInput').value = "";
+            document.querySelectorAll('.custom-opt').forEach(i => i.value = "");
+            
             renderCreatorQuestion();
         }
 
-        function skipQuestion() { if(activePool.length > 1) { activePool.shift(); renderCreatorQuestion(); } }
+        function skipQuestion() { 
+            if(activePool.length > 1) { 
+                activePool.shift(); 
+                renderCreatorQuestion(); 
+            } 
+        }
 
         async function saveToCloud() {
             showSection('loader');
@@ -510,8 +529,14 @@
             const uid = window.fbAuth.auth.currentUser ? window.fbAuth.auth.currentUser.uid : "guest";
             userProfile.quizId = id;
             localStorage.setItem('myQuizProfile', JSON.stringify(userProfile));
+            
             await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", id), {
-                creator: userProfile.name, creatorId: uid, avatar: userProfile.avatar, answers: userProfile.answers, results: [], createdAt: Date.now()
+                creator: userProfile.name,
+                creatorId: uid,
+                avatar: userProfile.avatar,
+                answers: userProfile.answers,
+                results: [],
+                createdAt: Date.now()
             });
             showSharePage(id);
         }
@@ -524,12 +549,12 @@
                 const data = snap.data();
                 if(data && data.results) {
                     document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
-                        <div class="flex flex-col bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border-b mb-2">
+                        <div class="flex flex-col bg-gray-50 dark:bg-gray-700 p-3 rounded-lg border-b dark:border-gray-600 mb-2">
                             <div class="flex justify-between items-center w-full">
                                 <span class="text-sm font-bold dark:text-gray-200">${r.name}</span>
                                 <span class="font-bold text-green-600">${r.score}/10</span>
                             </div>
-                            ${r.comment ? `<p class="mt-1 text-xs italic text-blue-500">"${r.comment}"</p>` : ''}
+                            ${r.comment ? `<p class="mt-1 text-xs italic text-blue-500 dark:text-blue-300">"${r.comment}"</p>` : ''}
                         </div>
                     `).join('');
                 }
@@ -538,31 +563,48 @@
 
         async function loadUserHistoryUI() {
             const user = window.fbAuth.auth.currentUser;
-            if(!user) return alert("লগইন করুন!");
+            if(!user) return alert(currentLang === 'bn' ? "লগইন করুন!" : "Please login to view history!");
             showSection('history');
             const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
             const snap = await window.fs.getDocs(q);
             const list = document.getElementById('historyList');
             list.innerHTML = '';
+            
             snap.forEach(docSnap => {
                 const d = docSnap.data();
                 const div = document.createElement('div');
                 div.className = "history-item p-3 bg-white border rounded-lg flex justify-between items-center shadow-sm";
-                div.innerHTML = `<div onclick="restoreQuiz('${docSnap.id}')" class="flex-grow">
+                div.innerHTML = `
+                    <div onclick="restoreQuiz('${docSnap.id}')" class="flex-grow">
                         <p class="font-bold text-sm text-gray-700">${d.creator}-এর কুইজ</p>
                         <p class="text-[10px] text-gray-400">Attempts: ${d.results ? d.results.length : 0}</p>
                     </div>
-                    <button onclick="deleteQuiz(event, '${docSnap.id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>`;
+                    <button onclick="deleteQuiz(event, '${docSnap.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded"><i class="fas fa-trash"></i></button>
+                `;
                 list.appendChild(div);
             });
         }
 
-        window.restoreQuiz = (id) => { userProfile.quizId = id; showSharePage(id); };
+        window.restoreQuiz = (id) => { 
+            userProfile.quizId = id; 
+            showSharePage(id); 
+        };
+
         window.deleteQuiz = async (e, id) => {
             e.stopPropagation();
-            if(!confirm("মুছে ফেলবেন?")) return;
-            await window.fs.deleteDoc(window.fs.doc(window.fs.db, "quizzes", id));
-            loadUserHistoryUI();
+            if(!confirm(currentLang === 'bn' ? "এটি স্থায়ীভাবে মুছে ফেলবে। নিশ্চিত?" : "Permanently delete from cloud?")) return;
+            showSection('loader');
+            try {
+                await window.fs.deleteDoc(window.fs.doc(window.fs.db, "quizzes", id));
+                if(userProfile.quizId === id) { 
+                    userProfile.quizId = ""; 
+                    localStorage.setItem('myQuizProfile', JSON.stringify(userProfile)); 
+                }
+                loadUserHistoryUI();
+            } catch (err) {
+                alert("Error deleting: " + err.message);
+                showSection('history');
+            }
         };
 
         async function loadFriendMode(id) {
@@ -572,12 +614,15 @@
                 quizFromDB = snap.data();
                 showSection('step4');
                 document.getElementById('friendAvatarDisp').innerText = quizFromDB.avatar;
-                document.getElementById('friendWelcomeTxt').innerText = `${quizFromDB.creator} সম্পর্কে কতটুকু জানো?`;
+                document.getElementById('friendWelcomeTxt').innerText = currentLang === 'bn' ? `${quizFromDB.creator} সম্পর্কে কতটুকু জানো?` : `How much do you know about ${quizFromDB.creator}?`;
+            } else {
+                alert("Quiz not found!");
+                createNewQuiz();
             }
         }
 
         function startFriendQuiz() {
-            if(!document.getElementById('friendNameInput').value) return alert("নাম লেখো!");
+            if(!document.getElementById('friendNameInput').value) return alert("Name please!");
             showSection('step2');
             document.getElementById('creatorControls').classList.add('hidden');
             document.getElementById('timerBarParent').classList.remove('hidden');
@@ -587,17 +632,21 @@
         function renderFriendQuestion() {
             clearInterval(timer);
             let timeLeft = 15;
-            document.getElementById('qTimerBar').style.width = '100%';
+            const bar = document.getElementById('qTimerBar');
+            document.getElementById('timerDisplay').innerText = timeLeft + "s";
+            bar.style.width = '100%';
+            
             timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timerDisplay').innerText = timeLeft + "s";
-                document.getElementById('qTimerBar').style.width = (timeLeft / 15 * 100) + '%';
+                bar.style.width = (timeLeft / 15 * 100) + '%';
                 if(timeLeft <= 0) handleAnswer(-1, null);
             }, 1000);
 
             const qD = quizFromDB.answers[friendQIdx];
-            document.getElementById('qCount').innerText = `প্রশ্ন: ${friendQIdx + 1}/10`;
-            document.getElementById('currentQuestion').innerText = qD.q[currentLang];
+            document.getElementById('qCount').innerText = `Question: ${friendQIdx + 1}/10`;
+            document.getElementById('currentQuestion').innerText = (qD.q && qD.q[currentLang]) ? qD.q[currentLang] : qD.q.bn;
+            
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
             qD.o[currentLang].forEach((opt, i) => {
@@ -612,111 +661,290 @@
         function handleAnswer(i, btn) {
             clearInterval(timer);
             const correct = quizFromDB.answers[friendQIdx].a;
-            if(i === correct) { btn.classList.add('correct-ans'); friendScore++; }
-            else { if(btn) btn.classList.add('wrong-ans'); document.querySelectorAll('.opt-btn')[correct].classList.add('correct-ans'); }
-            setTimeout(() => { friendQIdx++; if(friendQIdx < 10) renderFriendQuestion(); else finishFriendQuiz(); }, 1000);
+            const btns = document.querySelectorAll('.opt-btn');
+            btns.forEach(b => b.disabled = true);
+            
+            if(i === correct) { 
+                if(btn) btn.classList.add('correct-ans'); 
+                friendScore++; 
+                soundCorrect.play().catch(() => {});
+            } else { 
+                if(btn) btn.classList.add('wrong-ans'); 
+                btns[correct].classList.add('correct-ans');
+                soundWrong.play().catch(() => {});
+            }
+
+            setTimeout(() => {
+                friendQIdx++;
+                if(friendQIdx < 10) renderFriendQuestion();
+                else finishFriendQuiz();
+            }, 1200);
         }
 
         async function finishFriendQuiz() {
+            showSection('loader');
             const id = new URLSearchParams(window.location.search).get('id');
             const name = document.getElementById('friendNameInput').value;
+            
             await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), {
                 results: window.fs.arrayUnion({ name, score: friendScore, comment: "" })
             });
+            
             showSection('step5');
             document.getElementById('finalScore').innerText = `${friendScore}/10`;
-            if(friendScore >= 7) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            
+            if(friendScore >= 7) {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#22c55e', '#ffffff', '#fbbf24']
+                });
+            }
         }
 
         async function saveFriendComment() {
             const comment = document.getElementById('friendComment').value.trim();
-            if(!comment) return alert("কিছু লেখো!");
+            if(!comment) return alert(currentLang === 'bn' ? "কিছু একটা লিখুন!" : "Write something first!");
             const id = new URLSearchParams(window.location.search).get('id');
             const name = document.getElementById('friendNameInput').value;
-            const docRef = window.fs.doc(window.fs.db, "quizzes", id);
-            const snap = await window.fs.getDoc(docRef);
-            const results = snap.data().results;
-            results.forEach(r => { if(r.name === name) r.comment = comment; });
-            await window.fs.updateDoc(docRef, { results });
-            alert("মেসেজ পাঠানো হয়েছে!");
-        }
-
-        // --- Real-Time Chat Logic ---
-        async function openChatList() {
-            const user = window.fbAuth.auth.currentUser;
-            if(!user) return alert("চ্যাট করতে লগইন প্রয়োজন!");
-            document.getElementById('chatOverlay').style.display = 'flex';
-            const contacts = document.getElementById('chatListArea');
-            contacts.innerHTML = '<p class="p-4 text-center">লোড হচ্ছে...</p>';
             
-            const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
-            const snap = await window.fs.getDocs(q);
-            contacts.innerHTML = '';
-            
-            snap.forEach(d => {
-                const data = d.data();
-                data.results.forEach(res => {
-                    const div = document.createElement('div');
-                    div.className = "p-4 border-b dark:text-white cursor-pointer";
-                    div.innerHTML = `<b>${res.name}</b> (Score: ${res.score})`;
-                    div.onclick = () => startIndividualChat(user.uid, res.name, d.id);
-                    contacts.appendChild(div);
-                });
-            });
-        }
+            showSection('loader');
+            try {
+                const docRef = window.fs.doc(window.fs.db, "quizzes", id);
+                const snap = await window.fs.getDoc(docRef);
+                const results = snap.data().results || [];
+                
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].name === name) {
+                        results[i].comment = comment;
+                        break;
+                    }
+                }
 
-        function startIndividualChat(myId, friendName, quizId) {
-            currentChatId = `${quizId}_${friendName}`;
-            document.getElementById('chatTitle').innerText = friendName;
-            document.getElementById('chatListArea').classList.add('hidden');
-            document.getElementById('chatMessageArea').classList.remove('hidden');
-
-            const q = window.fs.query(window.fs.collection(window.fs.db, "chats", currentChatId, "messages"), window.fs.orderBy("time", "asc"));
-            if(msgUnsub) msgUnsub();
-            msgUnsub = window.fs.onSnapshot(q, (snap) => {
-                const flow = document.getElementById('msgFlow');
-                flow.innerHTML = '';
-                snap.forEach(doc => {
-                    const m = doc.data();
-                    const b = document.createElement('div');
-                    b.className = `msg-bubble ${m.sender === myId ? 'msg-sent' : 'msg-received'}`;
-                    b.innerText = m.text;
-                    flow.appendChild(b);
-                });
-                flow.scrollTop = flow.scrollHeight;
-            });
-        }
-
-        async function sendRealTimeMsg() {
-            const val = document.getElementById('mInput').value.trim();
-            if(!val || !currentChatId) return;
-            await window.fs.addDoc(window.fs.collection(window.fs.db, "chats", currentChatId, "messages"), {
-                text: val, sender: window.fbAuth.auth.currentUser.uid, time: Date.now()
-            });
-            document.getElementById('mInput').value = '';
-        }
-
-        function closeChat() {
-            document.getElementById('chatOverlay').style.display = 'none';
-            document.getElementById('chatListArea').classList.remove('hidden');
-            document.getElementById('chatMessageArea').classList.add('hidden');
-            if(msgUnsub) msgUnsub();
+                await window.fs.updateDoc(docRef, { results });
+                alert(currentLang === 'bn' ? "মেসেজ পাঠানো হয়েছে!" : "Message sent!");
+                showSection('step5');
+            } catch (err) {
+                console.error(err);
+                alert("Error saving message!");
+                showSection('step5');
+            }
         }
 
         function handleAuth() {
             if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload());
             else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload());
         }
-        function createNewQuiz() { localStorage.removeItem('myQuizProfile'); location.href = location.pathname; }
-        function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
-        function selectAvatar(el, icon) { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); el.classList.add('avatar-selected'); userProfile.avatar = icon; }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("লিঙ্ক কপি হয়েছে!"); }
-        function resetAllData() { if(confirm("সব ডাটা মুছে যাবে?")) { localStorage.clear(); location.reload(); } }
+        function createNewQuiz() { 
+            localStorage.removeItem('myQuizProfile'); 
+            location.href = location.pathname; 
+        }
+        function showSection(id) { 
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); 
+            document.getElementById(id).classList.remove('hidden-section'); 
+        }
+        function selectAvatar(el, icon) { 
+            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); 
+            el.classList.add('avatar-selected'); 
+            userProfile.avatar = icon; 
+        }
+        function copyLink() { 
+            navigator.clipboard.writeText(document.getElementById('shareLink').value); 
+            alert("Link Copied!"); 
+        }
+        function resetAllData() { 
+            if(confirm("This will clear all your progress. Continue?")) { 
+                localStorage.clear(); 
+                location.reload(); 
+            } 
+        }
+        
         function shareSocial(p) {
             const url = encodeURIComponent(document.getElementById('shareLink').value);
-            const txt = encodeURIComponent("দেখি আমার সম্পর্কে কতটুকু জানিস!");
-            const links = { whatsapp: `https://wa.me/?text=${txt}%20${url}`, facebook: `https://facebook.com/sharer/sharer.php?u=${url}` };
+            const txt = encodeURIComponent(currentLang === 'bn' ? "দেখি তো আমার সম্পর্কে কতটুকু জানিস! এই কুইজটা খেলে দেখা:" : "Let's see how well you know me! Play this quiz:");
+            const links = { 
+                whatsapp: `https://wa.me/?text=${txt}%20${url}`, 
+                facebook: `https://facebook.com/sharer/sharer.php?u=${url}`, 
+                messenger: `fb-messenger://share?link=${url}`, 
+                instagram: `https://instagram.com`, 
+                imo: `imo://share?url=${url}` 
+            };
             if(links[p]) window.open(links[p], '_blank');
+        }
+
+        /* --- REAL-TIME CHAT FEATURE INJECTION (APPENDED) --- */
+        
+        // Append Chat FAB to body
+        const fabHtml = `
+            <button id="chatFab" onclick="toggleChatOverlay()" class="fixed bottom-6 right-6 w-14 h-14 bg-green-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-[9999] hover:scale-110 active:scale-90 transition-all">
+                <i class="fas fa-comment-dots"></i>
+            </button>
+        `;
+        document.body.insertAdjacentHTML('beforeend', fabHtml);
+
+        // Append Chat Overlay to body
+        const chatOverlayHtml = `
+            <section id="chatOverlay" class="fixed inset-0 bg-white dark:bg-gray-900 z-[10000] hidden flex flex-col">
+                <div class="p-4 border-b dark:border-gray-800 flex items-center gap-4 bg-white dark:bg-gray-800 sticky top-0">
+                    <button onclick="toggleChatOverlay()" class="text-xl text-gray-600 dark:text-gray-300"><i class="fas fa-arrow-left"></i></button>
+                    <h2 id="chatHeaderTitle" class="font-bold text-lg dark:text-white">বন্ধুদের সাথে চ্যাট</h2>
+                </div>
+                
+                <div id="chatUserList" class="flex-grow overflow-y-auto p-4 space-y-3">
+                    <p class="text-center text-gray-400 mt-10">লোড হচ্ছে...</p>
+                </div>
+
+                <div id="activeChatWindow" class="hidden fixed inset-0 bg-white dark:bg-gray-900 flex flex-col z-[10001]">
+                    <div class="p-4 border-b dark:border-gray-700 flex items-center gap-4 bg-white dark:bg-gray-800">
+                        <button onclick="closeActiveChat()" class="text-xl text-gray-600 dark:text-gray-300"><i class="fas fa-arrow-left"></i></button>
+                        <span id="activeChatPartnerName" class="font-bold dark:text-white">Chat</span>
+                    </div>
+                    <div id="messageDisplay" class="flex-grow overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-800"></div>
+                    <div class="p-4 border-t dark:border-gray-700 bg-white dark:bg-gray-900 flex gap-2">
+                        <input id="chatInput" type="text" class="flex-grow p-3 border rounded-2xl outline-none dark:bg-gray-800 dark:text-white dark:border-gray-600" placeholder="কিছু লেখুন...">
+                        <button onclick="sendChatMessage()" class="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+        `;
+        document.body.insertAdjacentHTML('beforeend', chatOverlayHtml);
+
+        let currentChatId = null;
+        let chatUnsubscribe = null;
+
+        function toggleChatOverlay() {
+            const user = window.fbAuth.auth.currentUser;
+            if(!user) return alert(currentLang === 'bn' ? "চ্যাট করতে লগইন করুন!" : "Please login to chat!");
+            
+            const overlay = document.getElementById('chatOverlay');
+            overlay.classList.toggle('hidden');
+            if(!overlay.classList.contains('hidden')) {
+                loadChatUsers();
+            }
+        }
+
+        async function loadChatUsers() {
+            const currentUser = window.fbAuth.auth.currentUser;
+            const container = document.getElementById('chatUserList');
+            container.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner animate-spin text-2xl text-green-500"></i></div>';
+
+            try {
+                // Fetch all quizzes where current user is creator OR current user name exists in results
+                const q1 = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", currentUser.uid));
+                const snap1 = await window.fs.getDocs(q1);
+                
+                // Get general users who have interacted
+                const interactedUsers = new Map();
+
+                snap1.forEach(doc => {
+                    const data = doc.data();
+                    if(data.results) {
+                        data.results.forEach(res => {
+                            if(res.name) interactedUsers.set(res.name, { name: res.name, uid: "guest_id" });
+                        });
+                    }
+                });
+
+                // Since Firestore doesn't support complex joins, we show unique creators found in the system
+                const q2 = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.orderBy("createdAt", "desc"));
+                const snap2 = await window.fs.getDocs(q2);
+                
+                const userList = [];
+                const seenUids = new Set();
+                seenUids.add(currentUser.uid);
+
+                snap2.forEach(doc => {
+                    const d = doc.data();
+                    if(d.creatorId && !seenUids.has(d.creatorId)) {
+                        userList.push({ name: d.creator, uid: d.creatorId, avatar: d.avatar || '👤' });
+                        seenUids.add(d.creatorId);
+                    }
+                });
+
+                if(userList.length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-500">এখনো কোনো বন্ধু পাওয়া যায়নি। লিঙ্ক শেয়ার করুন!</p>';
+                    return;
+                }
+
+                container.innerHTML = userList.map(u => `
+                    <div onclick="openConversation('${u.uid}', '${u.name}')" class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl cursor-pointer hover:bg-green-50 dark:hover:bg-gray-700 transition">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-2xl">${u.avatar}</div>
+                        <div>
+                            <p class="font-bold dark:text-white">${u.name}</p>
+                            <p class="text-[10px] text-gray-500">চ্যাট করতে ট্যাপ করুন</p>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                container.innerHTML = '<p class="text-red-500 text-center">Error loading users.</p>';
+            }
+        }
+
+        function openConversation(partnerUid, partnerName) {
+            const currentUser = window.fbAuth.auth.currentUser;
+            const chatId = [currentUser.uid, partnerUid].sort().join("_");
+            currentChatId = chatId;
+
+            document.getElementById('activeChatPartnerName').innerText = partnerName;
+            document.getElementById('activeChatWindow').classList.remove('hidden');
+            
+            loadMessages(chatId);
+        }
+
+        function closeActiveChat() {
+            if(chatUnsubscribe) chatUnsubscribe();
+            document.getElementById('activeChatWindow').classList.add('hidden');
+        }
+
+        function loadMessages(chatId) {
+            const display = document.getElementById('messageDisplay');
+            const currentUser = window.fbAuth.auth.currentUser;
+
+            if(chatUnsubscribe) chatUnsubscribe();
+
+            const q = window.fs.query(
+                window.fs.collection(window.fs.db, "chats", chatId, "messages"),
+                window.fs.orderBy("timestamp", "asc")
+            );
+
+            chatUnsubscribe = window.fs.onSnapshot(q, (snap) => {
+                display.innerHTML = '';
+                snap.forEach(doc => {
+                    const msg = doc.data();
+                    const isMe = msg.senderId === currentUser.uid;
+                    const msgHtml = `
+                        <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                            <div class="max-w-[80%] p-3 rounded-2xl ${isMe ? 'bg-green-600 text-white rounded-tr-none' : 'bg-white dark:bg-gray-700 dark:text-white rounded-tl-none shadow-sm'}">
+                                <p class="text-sm">${msg.text}</p>
+                            </div>
+                        </div>
+                    `;
+                    display.insertAdjacentHTML('beforeend', msgHtml);
+                });
+                display.scrollTop = display.scrollHeight;
+            });
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text || !currentChatId) return;
+
+            const currentUser = window.fbAuth.auth.currentUser;
+            input.value = '';
+
+            try {
+                await window.fs.addDoc(window.fs.collection(window.fs.db, "chats", currentChatId, "messages"), {
+                    senderId: currentUser.uid,
+                    senderName: currentUser.displayName,
+                    text: text,
+                    timestamp: window.fs.serverTimestamp()
+                });
+            } catch (err) {
+                console.error("Chat Error:", err);
+            }
         }
     </script>
 </body>
