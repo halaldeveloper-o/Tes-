@@ -18,7 +18,6 @@
         body { 
             font-family: 'Poppins', sans-serif; 
             background-color: #f0fdf4; 
-            color: #1f2937;
             transition: background-color 0.3s, color 0.3s; 
         }
         body.dark-mode { 
@@ -108,9 +107,6 @@
         .dark-mode input::placeholder { 
             color: #9ca3af; 
         }
-        /* Specific text visibility in Dark Mode */
-        .dark-mode h1, .dark-mode h2, .dark-mode h3 { color: #ffffff !important; }
-        .dark-mode p, .dark-mode span:not(.text-green-600) { color: #d1d5db !important; }
 
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -180,14 +176,16 @@
             <button onclick="startQuizCreation()" data-lang="btnContinue" class="w-full btn-green py-4 rounded-2xl font-bold mb-4 shadow-lg text-lg">চালিয়ে যান →</button>
             <button onclick="loadUserHistoryUI()" data-lang="btnHistory" class="w-full text-green-600 dark:text-green-400 font-bold text-sm underline">আমার আগের কুইজ ও ইতিহাস দেখুন</button>
 
-            <div class="mt-10 pt-6 border-t dark:border-gray-700">
-                <h3 data-lang="howToPlayTitle" class="text-lg font-bold text-green-700 dark:text-green-400 mb-3"><i class="fas fa-question-circle mr-2"></i>কিভাবে খেলবেন?</h3>
-                <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-                    <p class="flex gap-2"><span>1.</span> <span data-lang="step1Desc">আপনার নাম এবং একটি অবতার দিয়ে শুরু করুন।</span></p>
-                    <p class="flex gap-2"><span>2.</span> <span data-lang="step2Desc">আপনার সম্পর্কে ১০টি মজার প্রশ্নের উত্তর দিন।</span></p>
-                    <p class="flex gap-2"><span>3.</span> <span data-lang="step3Desc">লিঙ্কটি কপি করে বন্ধুদের সাথে শেয়ার করুন।</span></p>
-                    <p class="flex gap-2"><span>4.</span> <span data-lang="step4Desc">বন্ধুরা উত্তর দিলে লিডারবোর্ডে তাদের স্কোর দেখুন!</span></p>
-                </div>
+            <div class="mt-10 p-5 bg-green-50 dark:bg-gray-800 rounded-2xl border border-green-100 dark:border-gray-700">
+                <h3 data-lang="howToPlayTitle" class="font-bold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2">
+                    <i class="fas fa-gamepad"></i> কিভাবে খেলবেন?
+                </h3>
+                <ul class="text-xs space-y-2 text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <li class="flex gap-2"><span>1.</span> <span data-lang="stepOne">আপনার নাম লিখে একটি অবতার সিলেক্ট করুন এবং কুইজ শুরু করুন।</span></li>
+                    <li class="flex gap-2"><span>2.</span> <span data-lang="stepTwo">আপনার সম্পর্কে ১০টি প্রশ্নের সঠিক উত্তর দিন।</span></li>
+                    <li class="flex gap-2"><span>3.</span> <span data-lang="stepThree">কুইজ শেষে প্রাপ্ত লিঙ্কটি কপি করে আপনার বন্ধুদের পাঠান।</span></li>
+                    <li class="flex gap-2"><span>4.</span> <span data-lang="stepFour">দেখুন আপনার বন্ধুরা আপনার সম্পর্কে কতটা জানে এবং লিডারবোর্ডে তাদের স্কোর চেক করুন।</span></li>
+                </ul>
             </div>
         </section>
 
@@ -328,6 +326,7 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
+        // Export to Global window object for access in standard scripts
         window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc };
         window.fbAuth = { auth, signInWithPopup, provider, signOut };
 
@@ -347,6 +346,7 @@
     </script>
 
     <script>
+        // --- Core Dictionary ---
         const langDict = {
             bn: { 
                 welcomeTitle: "কুইজ তৈরি করুন 🐼", 
@@ -370,12 +370,12 @@
                 friendPlaceholder: "তোমার নাম লেখো...",
                 msgPrompt: "বন্ধুর জন্য একটি মেসেজ লিখে দাও:",
                 btnSendMessage: "মেসেজ পাঠান",
-                disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। ❤️",
+                disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️",
                 howToPlayTitle: "কিভাবে খেলবেন?",
-                step1Desc: "আপনার নাম এবং একটি অবতার দিয়ে শুরু করুন।",
-                step2Desc: "আপনার সম্পর্কে ১০টি মজার প্রশ্নের উত্তর দিন।",
-                step3Desc: "লিঙ্কটি কপি করে বন্ধুদের সাথে শেয়ার করুন।",
-                step4Desc: "বন্ধুরা উত্তর দিলে লিডারবোর্ডে তাদের স্কোর দেখুন!"
+                stepOne: "আপনার নাম লিখে একটি অবতার সিলেক্ট করুন এবং কুইজ শুরু করুন।",
+                stepTwo: "আপনার সম্পর্কে ১০টি প্রশ্নের সঠিক উত্তর দিন।",
+                stepThree: "কুইজ শেষে প্রাপ্ত লিঙ্কটি কপি করে আপনার বন্ধুদের পাঠান।",
+                stepFour: "দেখুন আপনার বন্ধুরা আপনার সম্পর্কে কতটা জানে এবং লিডারবোর্ডে তাদের স্কোর চেক করুন।"
             },
             en: { 
                 welcomeTitle: "Create Your Quiz 🐼", 
@@ -399,21 +399,21 @@
                 friendPlaceholder: "Your name...",
                 msgPrompt: "Leave a message for your friend:",
                 btnSendMessage: "Send Message",
-                disclaimerText: "⚠️ Special Disclaimer: This website is for entertainment purposes only. ❤️",
+                disclaimerText: "⚠️ Special Disclaimer: This website is for entertainment purposes only. Do not take results seriously. ❤️",
                 howToPlayTitle: "How to Play?",
-                step1Desc: "Start by entering your name and choosing an avatar.",
-                step2Desc: "Answer 10 fun questions about yourself.",
-                step3Desc: "Copy the link and share it with your friends.",
-                step4Desc: "Once they answer, check their scores on the leaderboard!"
+                stepOne: "Enter your name, pick an avatar, and start the quiz.",
+                stepTwo: "Answer 10 questions correctly about yourself.",
+                stepThree: "Copy the final link and share it with friends.",
+                stepFour: "See who knows you best on the leaderboard!"
             },
-            es: { welcomeTitle: "Crear cuestionario 🐼", btnContinue: "Continuar →", howToPlayTitle: "¿Cómo jugar?", step1Desc: "Comienza con tu nombre y un avatar.", step2Desc: "Responde 10 preguntas sobre ti.", step3Desc: "Copia y comparte el enlace.", step4Desc: "¡Mira las puntuaciones!" },
-            fr: { welcomeTitle: "Créer un quiz 🐼", btnContinue: "Continuer →", howToPlayTitle: "Comment jouer?", step1Desc: "Commencez par votre nom et un avatar.", step2Desc: "Répondez à 10 questions sur vous.", step3Desc: "Copiez et partagez le lien.", step4Desc: "Consultez les scores !" },
-            hi: { welcomeTitle: "प्रश्नोत्तरी बनाएं 🐼", btnContinue: "जारी रखें →", howToPlayTitle: "कैसे खेलें?", step1Desc: "अपना नाम और अवतार चुनें।", step2Desc: "अपने बारे में 10 प्रश्नों के उत्तर दें।", step3Desc: "लिंक कॉपी करें और साझा करें।", step4Desc: "लीडरबोर्ड पर स्कोर देखें!" },
-            ar: { welcomeTitle: "أنشئ مسابقة 🐼", btnContinue: "متابعة →", howToPlayTitle: "كيف تلعب؟", step1Desc: "ابدأ باسمك وصورتك الرمزية.", step2Desc: "أجب عن 10 أسئلة عن نفسك.", step3Desc: "انسخ الرابط وشاركه.", step4Desc: "تحقق من النتائج!" },
-            pt: { welcomeTitle: "Criar Quiz 🐼", btnContinue: "Continuar →", howToPlayTitle: "Como jogar?", step1Desc: "Comece com seu nome e um avatar.", step2Desc: "Responda a 10 perguntas sobre você.", step3Desc: "Copie e compartilhe o link.", step4Desc: "Veja as pontuações!" },
-            ru: { welcomeTitle: "Создать викторину 🐼", btnContinue: "Продолжить →", howToPlayTitle: "Как играть?", step1Desc: "Начните с имени и аватара.", step2Desc: "Ответьте на 10 вопросов о себе.", step3Desc: "Скопируйте и поделитесь ссылкой.", step4Desc: "Смотрите результаты!" },
-            ja: { welcomeTitle: "クイズを作成 🐼", btnContinue: "次へ →", howToPlayTitle: "遊び方", step1Desc: "名前とアバターから始めましょう。", step2Desc: "自分に関する10の質問に答えます。", step3Desc: "リンクをコピーして共有します。", step4Desc: "リーダーボードでスコアを確認！" },
-            zh: { welcomeTitle: "创建测验 🐼", btnContinue: "继续 →", howToPlayTitle: "如何玩？", step1Desc: "输入姓名并选择头像。", step2Desc: "回答关于你的10个问题。", step3Desc: "复制并分享链接。", step4Desc: "在排行榜上查看分数！" }
+            es: { welcomeTitle: "Crear tu Quiz 🐼", btnContinue: "Continuar →", howToPlayTitle: "¿Cómo jugar?", stepOne: "Ingresa tu nombre y elige un avatar.", stepTwo: "Responde 10 preguntas.", stepThree: "Comparte el enlace.", stepFour: "Mira los resultados.", namePlaceholder: "Tu nombre..." },
+            fr: { welcomeTitle: "Créer votre Quiz 🐼", btnContinue: "Continuer →", howToPlayTitle: "Comment jouer?", stepOne: "Entrez votre nom et choisissez un avatar.", stepTwo: "Répondez à 10 questions.", stepThree: "Partagez le lien.", stepFour: "Voir les résultats.", namePlaceholder: "Votre nom..." },
+            hi: { welcomeTitle: "अपना क्विज़ बनाएं 🐼", btnContinue: "जारी रखें →", howToPlayTitle: "कैसे खेलें?", stepOne: "अपना नाम दर्ज करें और अवतार चुनें।", stepTwo: "10 सवालों के जवाब दें।", stepThree: "लिंक साझा करें।", stepFour: "परिणाम देखें।", namePlaceholder: "आपका नाम..." },
+            ar: { welcomeTitle: "أنشئ اختبارك 🐼", btnContinue: "استمرار →", howToPlayTitle: "كيف تلعب؟", stepOne: "أدخل اسمك واختر صورتك الرمزية.", stepTwo: "أجب على 10 أسئلة.", stepThree: "شارك الرابط.", stepFour: "شاهد النتائج.", namePlaceholder: "اسمك..." },
+            pt: { welcomeTitle: "Crie seu Quiz 🐼", btnContinue: "Continuar →", howToPlayTitle: "Como jogar?", stepOne: "Digite seu nome e escolha um avatar.", stepTwo: "Responda a 10 perguntas.", stepThree: "Compartilhe o link.", stepFour: "Veja os resultados.", namePlaceholder: "Seu nome..." },
+            ru: { welcomeTitle: "Создать викторину 🐼", btnContinue: "Продолжить →", howToPlayTitle: "Как играть?", stepOne: "Введите имя и выберите аватар.", stepTwo: "Ответьте на 10 вопросов.", stepThree: "Поделитесь ссылкой.", stepFour: "Посмотрите результаты.", namePlaceholder: "Ваше имя..." },
+            ja: { welcomeTitle: "クイズを作成 🐼", btnContinue: "続行 →", howToPlayTitle: "遊び方", stepOne: "名前を入力してアバターを選択します。", stepTwo: "10個の質問に答えます。", stepThree: "リンクを共有します。", stepFour: "結果を確認します。", namePlaceholder: "名前を入力..." },
+            zh: { welcomeTitle: "创建你的测验 🐼", btnContinue: "继续 →", howToPlayTitle: "如何玩？", stepOne: "输入您的名字并选择一个头像。", stepTwo: "回答 10 个问题。", stepThree: "分享链接。", stepFour: "查看结果。", namePlaceholder: "你的名字..." }
         };
 
         const rawPool = [
@@ -426,9 +426,15 @@
             { bn: "{N}-এর প্রিয় ঋতু কোনটি?", en: "Favorite season of {N}?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
             { bn: "{N} সবচেয়ে বেশি কী ভয় পায়?", en: "What does {N} fear most?", o: { bn: ["সাপ", "অন্ধকার", "পরীক্ষা", "মানুষ"], en: ["Snake", "Dark", "Exams", "People"] } },
             { bn: "{N}-এর কাছে টাকা নাকি ভালোবাসা বড়?", en: "Money or Love for {N}?", o: { bn: ["টাকা", "ভালোবাসা", "দুইটাই", "কোনোটাই না"], en: ["Money", "Love", "Both", "None"] } },
-            { bn: "{N} রাত জাগে কেন?", en: "Why does {N} stay up late?", o: { bn: ["ফোন টিপি", "চিন্তা করি", "কাজ করি", "ঘুম আসে না"], en: ["Social Media", "Thinking", "Working", "Insomnia"] } }
+            { bn: "{N} রাত জাগে কেন?", en: "Why does {N} stay up late?", o: { bn: ["ফোন টিপি", "চিন্তা করি", "কাজ করি", "ঘুম আসে না"], en: ["Social Media", "Thinking", "Working", "Insomnia"] } },
+            { bn: "{N}-এর প্রিয় শখ কী?", en: "What is {N}'s hobby?", o: { bn: ["বই পড়া", "গেম খেলা", "ছবি তোলা", "গান শোনা"], en: ["Reading", "Gaming", "Photography", "Music"] } },
+            { bn: "{N} পাহাড় নাকি সমুদ্র পছন্দ করে?", en: "Mountain or Sea for {N}?", o: { bn: ["পাহাড়", "সমুদ্র", "দুইটাই", "কোনোটাই না"], en: ["Mountain", "Sea", "Both", "None"] } },
+            { bn: "{N}-এর প্রিয় খেলা কোনটি?", en: "Favorite sport of {N}?", o: { bn: ["ক্রিকেট", "ফুটবল", "লুডু", "ক্যান্ডি ক্রাশ"], en: ["Cricket", "Football", "Ludo", "Candy Crush"] } },
+            { bn: "{N} কি আগে প্রেম করেছে?", en: "Was {N} in love before?", o: { bn: ["হ্যাঁ", "না", "একতরফা", "বলবো না"], en: ["Yes", "No", "One Sided", "Private"] } },
+            { bn: "{N}-কে এক কথায় কী বলা যায়?", en: "One word for {N}?", o: { bn: ["মিশুক", "রাগী", "অলস", "বুদ্ধিমান"], en: ["Friendly", "Angry", "Lazy", "Smart"] } }
         ];
 
+        // --- State Management ---
         let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '🐼', answers: [], quizId: '' };
         let currentLang = localStorage.getItem('lang') || 'bn';
         let isDarkMode = localStorage.getItem('theme') === 'dark';
@@ -439,6 +445,7 @@
         let timer;
         let unsubscribe = null;
 
+        // --- Audio Assets ---
         const soundCorrect = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
         const soundWrong = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');
 
@@ -447,6 +454,7 @@
             if (isDarkMode) document.body.classList.add('dark-mode');
             updateThemeUI();
             applyLanguage();
+            
             const qId = new URLSearchParams(window.location.search).get('id');
             if (qId) loadFriendMode(qId);
             else if (userProfile.quizId) showSharePage(userProfile.quizId);
@@ -458,8 +466,8 @@
                 const key = el.getAttribute('data-lang');
                 if(texts[key]) el.innerText = texts[key];
             });
-            document.getElementById('userName').placeholder = texts.namePlaceholder || "Name...";
-            document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder || "Name...";
+            document.getElementById('userName').placeholder = texts.namePlaceholder || "Your name...";
+            document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder || "Your name...";
         }
 
         function changeLanguage(v) {
@@ -488,25 +496,30 @@
             const nameInput = document.getElementById('userName').value.trim();
             if(!nameInput) return alert(currentLang === 'bn' ? "নাম দিন!" : "Please enter your name!");
             userProfile.name = nameInput;
+            
             activePool = rawPool.map(q => ({
                 bn: q.bn.replace(/{N}/g, userProfile.name),
                 en: q.en.replace(/{N}/g, userProfile.name),
                 o: q.o
             })).sort(() => Math.random() - 0.5);
+
             showSection('step2');
             renderCreatorQuestion();
         }
 
         function renderCreatorQuestion() {
             if (userProfile.answers.length >= 10) return saveToCloud();
+            
             document.getElementById('customQuestionArea').classList.add('hidden');
             const q = activePool[0];
             document.getElementById('qCount').innerText = `${userProfile.answers.length + 1}/10`;
-            document.getElementById('currentQuestion').innerText = (q[currentLang] || q['en']);
+            document.getElementById('currentQuestion').innerText = q[currentLang] || q['en'];
+            
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
-            const options = q.o[currentLang] || q.o['en'];
-            options.forEach((opt, i) => {
+            // Fallback to English options if current lang not in pool
+            const opts = q.o[currentLang] || q.o['en'];
+            opts.forEach((opt, i) => {
                 const b = document.createElement('button');
                 b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition hover:bg-green-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-gray-200";
                 b.innerText = opt;
@@ -519,8 +532,36 @@
             });
         }
 
-        function enableCustomQuestion() { document.getElementById('customQuestionArea').classList.toggle('hidden'); }
-        function skipQuestion() { if(activePool.length > 1) { activePool.shift(); renderCreatorQuestion(); } }
+        function enableCustomQuestion() { 
+            document.getElementById('customQuestionArea').classList.toggle('hidden'); 
+        }
+        
+        function saveCustomQuestion() {
+            const qT = document.getElementById('customQInput').value;
+            const oS = Array.from(document.querySelectorAll('.custom-opt')).map(i => i.value);
+            const selectedIdx = parseInt(document.querySelector('input[name="correctChoice"]:checked').value);
+            
+            if(!qT || oS.some(o => !o)) return alert("সব ঘর পূরণ করুন!");
+            
+            userProfile.answers.push({ 
+                q: {bn: qT, en: qT}, 
+                a: selectedIdx, 
+                o: { bn: oS, en: oS } 
+            });
+            
+            // Clear inputs for next time
+            document.getElementById('customQInput').value = "";
+            document.querySelectorAll('.custom-opt').forEach(i => i.value = "");
+            
+            renderCreatorQuestion();
+        }
+
+        function skipQuestion() { 
+            if(activePool.length > 1) { 
+                activePool.shift(); 
+                renderCreatorQuestion(); 
+            } 
+        }
 
         async function saveToCloud() {
             showSection('loader');
@@ -528,9 +569,14 @@
             const uid = window.fbAuth.auth.currentUser ? window.fbAuth.auth.currentUser.uid : "guest";
             userProfile.quizId = id;
             localStorage.setItem('myQuizProfile', JSON.stringify(userProfile));
+            
             await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", id), {
-                creator: userProfile.name, creatorId: uid, avatar: userProfile.avatar,
-                answers: userProfile.answers, results: [], createdAt: Date.now()
+                creator: userProfile.name,
+                creatorId: uid,
+                avatar: userProfile.avatar,
+                answers: userProfile.answers,
+                results: [],
+                createdAt: Date.now()
             });
             showSharePage(id);
         }
@@ -548,11 +594,58 @@
                                 <span class="text-sm font-bold dark:text-gray-200">${r.name}</span>
                                 <span class="font-bold text-green-600">${r.score}/10</span>
                             </div>
-                            ${r.comment ? `<p class="mt-1 text-xs italic text-blue-500">"${r.comment}"</p>` : ''}
-                        </div>`).join('');
+                            ${r.comment ? `<p class="mt-1 text-xs italic text-blue-500 dark:text-blue-300">"${r.comment}"</p>` : ''}
+                        </div>
+                    `).join('');
                 }
             });
         }
+
+        async function loadUserHistoryUI() {
+            const user = window.fbAuth.auth.currentUser;
+            if(!user) return alert(currentLang === 'bn' ? "লগইন করুন!" : "Please login to view history!");
+            showSection('history');
+            const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
+            const snap = await window.fs.getDocs(q);
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                const div = document.createElement('div');
+                div.className = "history-item p-3 bg-white border rounded-lg flex justify-between items-center shadow-sm";
+                div.innerHTML = `
+                    <div onclick="restoreQuiz('${docSnap.id}')" class="flex-grow">
+                        <p class="font-bold text-sm text-gray-700">${d.creator}-এর কুইজ</p>
+                        <p class="text-[10px] text-gray-400">Attempts: ${d.results ? d.results.length : 0}</p>
+                    </div>
+                    <button onclick="deleteQuiz(event, '${docSnap.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.restoreQuiz = (id) => { 
+            userProfile.quizId = id; 
+            showSharePage(id); 
+        };
+
+        window.deleteQuiz = async (e, id) => {
+            e.stopPropagation();
+            if(!confirm(currentLang === 'bn' ? "এটি স্থায়ীভাবে মুছে ফেলবে। নিশ্চিত?" : "Permanently delete from cloud?")) return;
+            showSection('loader');
+            try {
+                await window.fs.deleteDoc(window.fs.doc(window.fs.db, "quizzes", id));
+                if(userProfile.quizId === id) { 
+                    userProfile.quizId = ""; 
+                    localStorage.setItem('myQuizProfile', JSON.stringify(userProfile)); 
+                }
+                loadUserHistoryUI();
+            } catch (err) {
+                alert("Error deleting: " + err.message);
+                showSection('history');
+            }
+        };
 
         async function loadFriendMode(id) {
             showSection('loader');
@@ -562,7 +655,10 @@
                 showSection('step4');
                 document.getElementById('friendAvatarDisp').innerText = quizFromDB.avatar;
                 document.getElementById('friendWelcomeTxt').innerText = currentLang === 'bn' ? `${quizFromDB.creator} সম্পর্কে কতটুকু জানো?` : `How much do you know about ${quizFromDB.creator}?`;
-            } else { alert("Quiz not found!"); createNewQuiz(); }
+            } else {
+                alert("Quiz not found!");
+                createNewQuiz();
+            }
         }
 
         function startFriendQuiz() {
@@ -579,19 +675,23 @@
             const bar = document.getElementById('qTimerBar');
             document.getElementById('timerDisplay').innerText = timeLeft + "s";
             bar.style.width = '100%';
+            
             timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timerDisplay').innerText = timeLeft + "s";
                 bar.style.width = (timeLeft / 15 * 100) + '%';
                 if(timeLeft <= 0) handleAnswer(-1, null);
             }, 1000);
+
             const qD = quizFromDB.answers[friendQIdx];
             document.getElementById('qCount').innerText = `Question: ${friendQIdx + 1}/10`;
-            document.getElementById('currentQuestion').innerText = (qD.q && qD.q[currentLang]) ? qD.q[currentLang] : qD.q.en;
+            document.getElementById('currentQuestion').innerText = (qD.q && qD.q[currentLang]) ? qD.q[currentLang] : qD.q.bn;
+            
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
-            const opts = qD.o[currentLang] || qD.o['en'];
-            opts.forEach((opt, i) => {
+            // Handle multiple language options safely
+            const options = qD.o[currentLang] || qD.o['en'] || qD.o['bn'];
+            options.forEach((opt, i) => {
                 const b = document.createElement('button');
                 b.className = "opt-btn w-full p-4 border-2 rounded-xl text-left font-medium transition dark:border-gray-600 dark:text-gray-200";
                 b.innerText = opt;
@@ -605,31 +705,113 @@
             const correct = quizFromDB.answers[friendQIdx].a;
             const btns = document.querySelectorAll('.opt-btn');
             btns.forEach(b => b.disabled = true);
-            if(i === correct) { if(btn) btn.classList.add('correct-ans'); friendScore++; soundCorrect.play().catch(()=>{}); }
-            else { if(btn) btn.classList.add('wrong-ans'); btns[correct].classList.add('correct-ans'); soundWrong.play().catch(()=>{}); }
-            setTimeout(() => { friendQIdx++; if(friendQIdx < 10) renderFriendQuestion(); else finishFriendQuiz(); }, 1200);
+            
+            if(i === correct) { 
+                if(btn) btn.classList.add('correct-ans'); 
+                friendScore++; 
+                soundCorrect.play().catch(() => {});
+            } else { 
+                if(btn) btn.classList.add('wrong-ans'); 
+                btns[correct].classList.add('correct-ans');
+                soundWrong.play().catch(() => {});
+            }
+
+            setTimeout(() => {
+                friendQIdx++;
+                if(friendQIdx < 10) renderFriendQuestion();
+                else finishFriendQuiz();
+            }, 1200);
         }
 
         async function finishFriendQuiz() {
             showSection('loader');
             const id = new URLSearchParams(window.location.search).get('id');
             const name = document.getElementById('friendNameInput').value;
-            await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), { results: window.fs.arrayUnion({ name, score: friendScore, comment: "" }) });
+            
+            await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), {
+                results: window.fs.arrayUnion({ name, score: friendScore, comment: "" })
+            });
+            
             showSection('step5');
             document.getElementById('finalScore').innerText = `${friendScore}/10`;
-            if(friendScore >= 7) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            
+            if(friendScore >= 7) {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#22c55e', '#ffffff', '#fbbf24']
+                });
+            }
         }
 
-        function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
-        function selectAvatar(el, icon) { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); el.classList.add('avatar-selected'); userProfile.avatar = icon; }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("Link Copied!"); }
-        function createNewQuiz() { localStorage.removeItem('myQuizProfile'); location.href = location.pathname; }
-        function handleAuth() { if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload()); else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload()); }
-        function resetAllData() { if(confirm("Clear all?")) { localStorage.clear(); location.reload(); } }
+        async function saveFriendComment() {
+            const comment = document.getElementById('friendComment').value.trim();
+            if(!comment) return alert(currentLang === 'bn' ? "কিছু একটা লিখুন!" : "Write something first!");
+            const id = new URLSearchParams(window.location.search).get('id');
+            const name = document.getElementById('friendNameInput').value;
+            
+            showSection('loader');
+            try {
+                const docRef = window.fs.doc(window.fs.db, "quizzes", id);
+                const snap = await window.fs.getDoc(docRef);
+                const results = snap.data().results || [];
+                
+                for (let i = results.length - 1; i >= 0; i--) {
+                    if (results[i].name === name) {
+                        results[i].comment = comment;
+                        break;
+                    }
+                }
+
+                await window.fs.updateDoc(docRef, { results });
+                alert(currentLang === 'bn' ? "মেসেজ পাঠানো হয়েছে!" : "Message sent!");
+                showSection('step5');
+            } catch (err) {
+                console.error(err);
+                alert("Error saving message!");
+                showSection('step5');
+            }
+        }
+
+        function handleAuth() {
+            if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload());
+            else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload());
+        }
+        function createNewQuiz() { 
+            localStorage.removeItem('myQuizProfile'); 
+            location.href = location.pathname; 
+        }
+        function showSection(id) { 
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); 
+            document.getElementById(id).classList.remove('hidden-section'); 
+        }
+        function selectAvatar(el, icon) { 
+            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); 
+            el.classList.add('avatar-selected'); 
+            userProfile.avatar = icon; 
+        }
+        function copyLink() { 
+            navigator.clipboard.writeText(document.getElementById('shareLink').value); 
+            alert("Link Copied!"); 
+        }
+        function resetAllData() { 
+            if(confirm("This will clear all your progress. Continue?")) { 
+                localStorage.clear(); 
+                location.reload(); 
+            } 
+        }
+        
         function shareSocial(p) {
             const url = encodeURIComponent(document.getElementById('shareLink').value);
-            const txt = encodeURIComponent(currentLang === 'bn' ? "আমার কুইজটা খেল:" : "Play my quiz:");
-            const links = { whatsapp: `https://wa.me/?text=${txt}%20${url}`, facebook: `https://facebook.com/sharer/sharer.php?u=${url}` };
+            const txt = encodeURIComponent(currentLang === 'bn' ? "দেখি তো আমার সম্পর্কে কতটুকু জানিস! এই কুইজটা খেলে দেখা:" : "Let's see how well you know me! Play this quiz:");
+            const links = { 
+                whatsapp: `https://wa.me/?text=${txt}%20${url}`, 
+                facebook: `https://facebook.com/sharer/sharer.php?u=${url}`, 
+                messenger: `fb-messenger://share?link=${url}`, 
+                instagram: `https://instagram.com`, 
+                imo: `imo://share?url=${url}` 
+            };
             if(links[p]) window.open(links[p], '_blank');
         }
     </script>
