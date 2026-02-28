@@ -98,14 +98,23 @@
             transform: translateX(5px); 
         }
 
-        /* Dark Mode Input Visibility Fixes */
-        .dark-mode input, .dark-mode select {
+        /* Dark Mode Input Visibility Fixes - Elite Coding Master Update */
+        .dark-mode input, .dark-mode select, .dark-mode textarea {
             background-color: #374151 !important;
-            color: white !important;
+            color: #ffffff !important;
             border-color: #4b5563 !important;
         }
         .dark-mode input::placeholder { 
-            color: #9ca3af; 
+            color: #9ca3af !important; 
+        }
+        .dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode p, .dark-mode span, .dark-mode li {
+            color: #f3f4f6 !important;
+        }
+        .dark-mode .text-gray-500, .dark-mode .text-gray-600, .dark-mode .text-gray-700 {
+            color: #d1d5db !important;
+        }
+        .dark-mode .bg-white {
+            background-color: #1f2937 !important;
         }
 
         @keyframes pulse {
@@ -200,7 +209,7 @@
             </div>
             
             <div id="customQuestionArea" class="hidden mb-4 p-4 bg-blue-50 dark:bg-gray-700 rounded-xl border-2 border-blue-200">
-                <p class="text-[10px] font-bold text-blue-600 mb-2">সঠিক উত্তরের পাশে টিক দিন:</p>
+                <p data-lang="customAnsHint" class="text-[10px] font-bold text-blue-600 mb-2">সঠিক উত্তরের পাশে টিক দিন:</p>
                 <input type="text" id="customQInput" class="w-full p-2 border rounded mb-2 text-sm" placeholder="আপনার প্রশ্ন...">
                 <div class="space-y-2">
                     <div class="flex items-center gap-2">
@@ -346,74 +355,38 @@
     </script>
 
     <script>
-        // --- Core Dictionary ---
+        // --- Core Dictionary (Updated for 10 Languages) ---
         const langDict = {
             bn: { 
-                welcomeTitle: "কুইজ তৈরি করুন 🐼", 
-                btnContinue: "চালিয়ে যান →", 
-                btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", 
-                btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", 
-                btnAddCustom: "নিজের প্রশ্ন যোগ করুন", 
-                btnSave: "সেভ করুন", 
-                shareTitle: "কুইজ লিঙ্ক রেডি!", 
-                btnCopy: "কপি লিঙ্ক", 
-                scoreTitle: "বন্ধুদের স্কোর:", 
-                btnHistorySmall: "ইতিহাস", 
-                btnCreateNew: "নতুন কুইজ তৈরি করুন", 
-                historyTitle: "কুইজ ইতিহাস", 
-                btnBack: "← ফিরে যাও", 
-                btnStartQuiz: "কুইজ শুরু করো", 
-                btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", 
-                settingsTitle: "সেটিংস", 
-                btnReset: "সব তথ্য মুছুন", 
-                namePlaceholder: "আপনার নাম...", 
-                friendPlaceholder: "তোমার নাম লেখো...",
-                msgPrompt: "বন্ধুর জন্য একটি মেসেজ লিখে দাও:",
-                btnSendMessage: "মেসেজ পাঠান",
+                welcomeTitle: "কুইজ তৈরি করুন 🐼", btnContinue: "চালিয়ে যান →", btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", 
+                btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", btnAddCustom: "নিজের প্রশ্ন যোগ করুন", btnSave: "সেভ করুন", 
+                shareTitle: "কুইজ লিঙ্ক রেডি!", btnCopy: "কপি লিঙ্ক", scoreTitle: "বন্ধুদের স্কোর:", btnHistorySmall: "ইতিহাস", 
+                btnCreateNew: "নতুন কুইজ তৈরি করুন", historyTitle: "কুইজ ইতিহাস", btnBack: "← ফিরে যাও", btnStartQuiz: "কুইজ শুরু করো", 
+                btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", settingsTitle: "সেটিংস", btnReset: "সব তথ্য মুছুন", 
+                namePlaceholder: "আপনার নাম...", friendPlaceholder: "তোমার নাম লেখো...", msgPrompt: "বন্ধুর জন্য একটি মেসেজ লিখে দাও:",
+                btnSendMessage: "মেসেজ পাঠান", customAnsHint: "সঠিক উত্তরের পাশে টিক দিন:",
                 disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️",
-                howToPlayTitle: "কিভাবে খেলবেন?",
-                stepOne: "আপনার নাম লিখে একটি অবতার সিলেক্ট করুন এবং কুইজ শুরু করুন।",
-                stepTwo: "আপনার সম্পর্কে ১০টি প্রশ্নের সঠিক উত্তর দিন।",
-                stepThree: "কুইজ শেষে প্রাপ্ত লিঙ্কটি কপি করে আপনার বন্ধুদের পাঠান।",
-                stepFour: "দেখুন আপনার বন্ধুরা আপনার সম্পর্কে কতটা জানে এবং লিডারবোর্ডে তাদের স্কোর চেক করুন।"
+                howToPlayTitle: "কিভাবে খেলবেন?", stepOne: "আপনার নাম লিখে একটি অবতার সিলেক্ট করুন এবং কুইজ শুরু করুন।", stepTwo: "আপনার সম্পর্কে ১০টি প্রশ্নের সঠিক উত্তর দিন।", stepThree: "কুইজ শেষে প্রাপ্ত লিঙ্কটি কপি করে আপনার বন্ধুদের পাঠান।", stepFour: "দেখুন আপনার বন্ধুরা আপনার সম্পর্কে কতটা জানে এবং লিডারবোর্ডে তাদের স্কোর চেক করুন。"
             },
             en: { 
-                welcomeTitle: "Create Your Quiz 🐼", 
-                btnContinue: "Continue →", 
-                btnHistory: "View Quiz History", 
-                btnSkip: "Skip question ➔", 
-                btnAddCustom: "Add Custom Question", 
-                btnSave: "Save", 
-                shareTitle: "Quiz Link is Ready!", 
-                btnCopy: "Copy Link", 
-                scoreTitle: "Friend Scores:", 
-                btnHistorySmall: "History", 
-                btnCreateNew: "Create New Quiz", 
-                historyTitle: "Quiz History", 
-                btnBack: "← Back", 
-                btnStartQuiz: "Start Quiz", 
-                btnResultCreate: "Create Your Own 🚀", 
-                settingsTitle: "Settings", 
-                btnReset: "Reset All Data", 
-                namePlaceholder: "Your name...", 
-                friendPlaceholder: "Your name...",
-                msgPrompt: "Leave a message for your friend:",
-                btnSendMessage: "Send Message",
+                welcomeTitle: "Create Your Quiz 🐼", btnContinue: "Continue →", btnHistory: "View Quiz History", 
+                btnSkip: "Skip question ➔", btnAddCustom: "Add Custom Question", btnSave: "Save", 
+                shareTitle: "Quiz Link is Ready!", btnCopy: "Copy Link", scoreTitle: "Friend Scores:", btnHistorySmall: "History", 
+                btnCreateNew: "Create New Quiz", historyTitle: "Quiz History", btnBack: "← Back", btnStartQuiz: "Start Quiz", 
+                btnResultCreate: "Create Your Own 🚀", settingsTitle: "Settings", btnReset: "Reset All Data", 
+                namePlaceholder: "Your name...", friendPlaceholder: "Your name...", msgPrompt: "Leave a message for your friend:",
+                btnSendMessage: "Send Message", customAnsHint: "Tick the correct answer:",
                 disclaimerText: "⚠️ Special Disclaimer: This website is for entertainment purposes only. Do not take results seriously. ❤️",
-                howToPlayTitle: "How to Play?",
-                stepOne: "Enter your name, pick an avatar, and start the quiz.",
-                stepTwo: "Answer 10 questions correctly about yourself.",
-                stepThree: "Copy the final link and share it with friends.",
-                stepFour: "See who knows you best on the leaderboard!"
+                howToPlayTitle: "How to Play?", stepOne: "Enter your name, pick an avatar, and start the quiz.", stepTwo: "Answer 10 questions correctly about yourself.", stepThree: "Copy the final link and share it with friends.", stepFour: "See who knows you best on the leaderboard!"
             },
-            es: { welcomeTitle: "Crear tu Quiz 🐼", btnContinue: "Continuar →", howToPlayTitle: "¿Cómo jugar?", stepOne: "Ingresa tu nombre y elige un avatar.", stepTwo: "Responde 10 preguntas.", stepThree: "Comparte el enlace.", stepFour: "Mira los resultados.", namePlaceholder: "Tu nombre..." },
-            fr: { welcomeTitle: "Créer votre Quiz 🐼", btnContinue: "Continuer →", howToPlayTitle: "Comment jouer?", stepOne: "Entrez votre nom et choisissez un avatar.", stepTwo: "Répondez à 10 questions.", stepThree: "Partagez le lien.", stepFour: "Voir les résultats.", namePlaceholder: "Votre nom..." },
-            hi: { welcomeTitle: "अपना क्विज़ बनाएं 🐼", btnContinue: "जारी रखें →", howToPlayTitle: "कैसे खेलें?", stepOne: "अपना नाम दर्ज करें और अवतार चुनें।", stepTwo: "10 सवालों के जवाब दें।", stepThree: "लिंक साझा करें।", stepFour: "परिणाम देखें।", namePlaceholder: "आपका नाम..." },
-            ar: { welcomeTitle: "أنشئ اختبارك 🐼", btnContinue: "استمرار →", howToPlayTitle: "كيف تلعب؟", stepOne: "أدخل اسمك واختر صورتك الرمزية.", stepTwo: "أجب على 10 أسئلة.", stepThree: "شارك الرابط.", stepFour: "شاهد النتائج.", namePlaceholder: "اسمك..." },
-            pt: { welcomeTitle: "Crie seu Quiz 🐼", btnContinue: "Continuar →", howToPlayTitle: "Como jogar?", stepOne: "Digite seu nome e escolha um avatar.", stepTwo: "Responda a 10 perguntas.", stepThree: "Compartilhe o link.", stepFour: "Veja os resultados.", namePlaceholder: "Seu nome..." },
-            ru: { welcomeTitle: "Создать викторину 🐼", btnContinue: "Продолжить →", howToPlayTitle: "Как играть?", stepOne: "Введите имя и выберите аватар.", stepTwo: "Ответьте на 10 вопросов.", stepThree: "Поделитесь ссылкой.", stepFour: "Посмотрите результаты.", namePlaceholder: "Ваше имя..." },
-            ja: { welcomeTitle: "クイズを作成 🐼", btnContinue: "続行 →", howToPlayTitle: "遊び方", stepOne: "名前を入力してアバターを選択します。", stepTwo: "10個の質問に答えます。", stepThree: "リンクを共有します。", stepFour: "結果を確認します。", namePlaceholder: "名前を入力..." },
-            zh: { welcomeTitle: "创建你的测验 🐼", btnContinue: "继续 →", howToPlayTitle: "如何玩？", stepOne: "输入您的名字并选择一个头像。", stepTwo: "回答 10 个问题。", stepThree: "分享链接。", stepFour: "查看结果。", namePlaceholder: "你的名字..." }
+            es: { welcomeTitle: "Crear tu Quiz 🐼", btnContinue: "Continuar →", howToPlayTitle: "¿Cómo jugar?", stepOne: "Ingresa tu nombre y elige un avatar.", stepTwo: "Responde 10 preguntas.", stepThree: "Comparte el enlace.", stepFour: "Mira los resultados.", namePlaceholder: "Tu nombre...", btnBack: "← Atrás", btnSave: "Guardar", shareTitle: "¡Enlace listo!", btnCopy: "Copiar" },
+            fr: { welcomeTitle: "Créer votre Quiz 🐼", btnContinue: "Continuer →", howToPlayTitle: "Comment jouer?", stepOne: "Entrez votre nom et choisissez un avatar.", stepTwo: "Répondez à 10 questions.", stepThree: "Partagez le lien.", stepFour: "Voir les résultats.", namePlaceholder: "Votre nom...", btnBack: "← Retour", btnSave: "Enregistrer", shareTitle: "Lien prêt!", btnCopy: "Copier" },
+            hi: { welcomeTitle: "अपना क्विज़ बनाएं 🐼", btnContinue: "जारी रखें →", howToPlayTitle: "कैसे खेलें?", stepOne: "अपना नाम दर्ज करें और अवतार चुनें।", stepTwo: "10 सवालों के जवाब दें।", stepThree: "लिнк साझा करें।", stepFour: "परिणाम देखें।", namePlaceholder: "आपका नाम...", btnBack: "← वापस", btnSave: "सहेजें", shareTitle: "लिंक तैयार है!", btnCopy: "कॉपी करें" },
+            ar: { welcomeTitle: "أنشئ اختبارك 🐼", btnContinue: "استمرار →", howToPlayTitle: "كيف تلعب؟", stepOne: "أدخل اسمك واختر صورتক الرمزية.", stepTwo: "أجب على 10 أسئلة.", stepThree: "شارك الرابط.", stepFour: "شاهد النتائج.", namePlaceholder: "اسمك...", btnBack: "← رجوع", btnSave: "حفظ", shareTitle: "الرابط جاهز!", btnCopy: "نسخ" },
+            pt: { welcomeTitle: "Crie seu Quiz 🐼", btnContinue: "Continuar →", howToPlayTitle: "Como jogar?", stepOne: "Digite seu nome e escolha um avatar.", stepTwo: "Responda a 10 perguntas.", stepThree: "Compartilhe o link.", stepFour: "Veja os resultados.", namePlaceholder: "Seu nome...", btnBack: "← Voltar", btnSave: "Salvar", shareTitle: "Link pronto!", btnCopy: "Copiar" },
+            ru: { welcomeTitle: "Создать викторину 🐼", btnContinue: "Продолжить →", howToPlayTitle: "Как играть?", stepOne: "Введите имя и выберите аватар.", stepTwo: "Ответьте на 10 вопросов.", stepThree: "Поделитесь ссылкой.", stepFour: "Посмотрите результаты.", namePlaceholder: "Ваше имя...", btnBack: "← Назад", btnSave: "Сохранить", shareTitle: "Ссылка готова!", btnCopy: "Копировать" },
+            ja: { welcomeTitle: "クイズを作成 🐼", btnContinue: "続行 →", howToPlayTitle: "遊び方", stepOne: "名前を入力してアバターを選択します。", stepTwo: "10個の質問に答えます。", stepThree: "リンクを共有します。", stepFour: "結果を確認します。", namePlaceholder: "名前を入力...", btnBack: "← 戻る", btnSave: "保存", shareTitle: "リンク完了！", btnCopy: "コピー" },
+            zh: { welcomeTitle: "创建你的测验 🐼", btnContinue: "继续 →", howToPlayTitle: "如何玩？", stepOne: "输入您的名字并选择一个头像。", stepTwo: "回答 10 个问题。", stepThree: "分享链接。", stepFour: "查看结果。", namePlaceholder: "你的名字...", btnBack: "← 返回", btnSave: "保存", shareTitle: "链接已就绪！", btnCopy: "复制" }
         };
 
         const rawPool = [
@@ -468,12 +441,14 @@
             });
             document.getElementById('userName').placeholder = texts.namePlaceholder || "Your name...";
             document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder || "Your name...";
+            document.getElementById('friendComment').placeholder = (currentLang === 'bn') ? "অসাধারণ খেলেছ! / তুই কিছুই জানিস না..." : "Well played! / You know nothing...";
         }
 
         function changeLanguage(v) {
             currentLang = v;
             localStorage.setItem('lang', v);
             applyLanguage();
+            // Update live questions if active
             if(!document.getElementById('step2').classList.contains('hidden-section')) {
                 if(quizFromDB) renderFriendQuestion(); else renderCreatorQuestion();
             }
@@ -517,8 +492,7 @@
             
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
-            // Fallback to English options if current lang not in pool
-            const opts = q.o[currentLang] || q.o['en'];
+            const opts = q.o[currentLang] || q.o['en'] || q.o['bn'];
             opts.forEach((opt, i) => {
                 const b = document.createElement('button');
                 b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition hover:bg-green-50 dark:hover:bg-gray-700 dark:border-gray-600 dark:text-gray-200";
@@ -549,7 +523,6 @@
                 o: { bn: oS, en: oS } 
             });
             
-            // Clear inputs for next time
             document.getElementById('customQInput').value = "";
             document.querySelectorAll('.custom-opt').forEach(i => i.value = "");
             
@@ -689,7 +662,6 @@
             
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
-            // Handle multiple language options safely
             const options = qD.o[currentLang] || qD.o['en'] || qD.o['bn'];
             options.forEach((opt, i) => {
                 const b = document.createElement('button');
@@ -737,9 +709,7 @@
             
             if(friendScore >= 7) {
                 confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 },
+                    particleCount: 150, spread: 70, origin: { y: 0.6 },
                     colors: ['#22c55e', '#ffffff', '#fbbf24']
                 });
             }
@@ -768,7 +738,6 @@
                 alert(currentLang === 'bn' ? "মেসেজ পাঠানো হয়েছে!" : "Message sent!");
                 showSection('step5');
             } catch (err) {
-                console.error(err);
                 alert("Error saving message!");
                 showSection('step5');
             }
@@ -806,11 +775,8 @@
             const url = encodeURIComponent(document.getElementById('shareLink').value);
             const txt = encodeURIComponent(currentLang === 'bn' ? "দেখি তো আমার সম্পর্কে কতটুকু জানিস! এই কুইজটা খেলে দেখা:" : "Let's see how well you know me! Play this quiz:");
             const links = { 
-                whatsapp: `https://wa.me/?text=${txt}%20${url}`, 
-                facebook: `https://facebook.com/sharer/sharer.php?u=${url}`, 
-                messenger: `fb-messenger://share?link=${url}`, 
-                instagram: `https://instagram.com`, 
-                imo: `imo://share?url=${url}` 
+                whatsapp: `https://wa.me/?text=${txt}%20${url}`, facebook: `https://facebook.com/sharer/sharer.php?u=${url}`, 
+                messenger: `fb-messenger://share?link=${url}`, instagram: `https://instagram.com`, imo: `imo://share?url=${url}` 
             };
             if(links[p]) window.open(links[p], '_blank');
         }
